@@ -227,16 +227,16 @@ def program_manager_page():
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
 
-st.dataframe(
-    order_tasks,
-    use_container_width=True
-)
-
-    # -------------------------
+    st.dataframe(
+        order_tasks,
+        use_container_width=True
+    )
+    
+     # -------------------------
     # ESCALATION ACTIONS
     # -------------------------
-st.divider()
-st.subheader("Escalation Actions")
+    st.divider()
+    st.subheader("Escalation Actions")
 
     risky_tasks = order_tasks[
         (order_tasks["Task_Status"].isin(["In Risk", "In Progress"])) |
@@ -283,8 +283,7 @@ st.subheader("Escalation Actions")
             st.session_state.escalations_log
         )
 
-        st.dataframe(escalation_df, use_container_width=True)
-
+        st.dataframe(escalation_df, use_container_width=True)    
 
 # -------------------------
 # OPERATIONS PAGE
