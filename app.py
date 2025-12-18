@@ -165,6 +165,21 @@ def program_manager_page():
     st.dataframe(styled_orders, use_container_width=True)
 
     # -------------------------
+    # HOLD REASON LOOKUP
+    # -------------------------
+    hold_df = data["holds"].copy()
+
+    hold_lookup = {
+        row["Hold_Code"]: (
+            f"{row['Hold_Reason']} | "
+            f"Owner: {row['Responsibility']} | "
+            f"Category: {row['Category']} | "
+            f"Delay: {row['Delayed_TAT']}"
+        )
+        for _, row in hold_df.iterrows()
+    }
+
+    # -------------------------
     # DRILL-DOWN SECTION
     # -------------------------
     st.divider()
@@ -179,7 +194,20 @@ def program_manager_page():
         tasks_df["Order_ID"] == selected_order
     ].sort_values("Task_Start_Date")
 
-    st.dataframe(order_tasks, use_container_width=True)
+        st.dataframe(
+        order_tasks,
+        use_container_width=True,
+        column_config={
+            "Hold_Reason_Code": st.column_config.TextColumn(
+                "Hold Reason Code",
+                help="Hover to view hold reason details",
+                tooltip=order_tasks["Hold_Reason_Code"]
+                .map(hold_lookup)
+                .fillna("No hold applied")
+            )
+        }
+    )
+
 
     st.divider()
 
