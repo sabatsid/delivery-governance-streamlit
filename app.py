@@ -1,4 +1,30 @@
 import streamlit as st
+import pandas as pd
+
+# -------------------------
+# LOAD EXCEL DATA
+# -------------------------
+@st.cache_data
+def load_data():
+    excel_file = "delivery_governance_data.xlsx"
+    
+    orders_master = pd.read_excel(excel_file, sheet_name="Orders_Master")
+    order_task_execution = pd.read_excel(excel_file, sheet_name="Order_Task_Execution")
+    task_dictionary = pd.read_excel(excel_file, sheet_name="Process_Task_Dictionary")
+    hold_reasons = pd.read_excel(excel_file, sheet_name="Hold_Reason_LOV")
+    escalation_matrix = pd.read_excel(excel_file, sheet_name="Escalation_Matrix")
+
+    return {
+        "orders": orders_master,
+        "tasks": order_task_execution,
+        "dictionary": task_dictionary,
+        "holds": hold_reasons,
+        "escalations": escalation_matrix
+    }
+
+
+data = load_data()
+
 
 # Page configuration
 st.set_page_config(
@@ -39,6 +65,10 @@ def landing_page():
         if st.button("👤 Customer", use_container_width=True):
             st.session_state.persona = "Customer"
 
+st.success("Excel data loaded successfully")
+
+st.write("Orders:", data["orders"].shape)
+st.write("Tasks:", data["tasks"].shape)
 
 # -------------------------
 # PROGRAM MANAGER PAGE
