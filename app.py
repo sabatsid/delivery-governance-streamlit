@@ -194,7 +194,7 @@ def program_manager_page():
         tasks_df["Order_ID"] == selected_order
     ].sort_values("Task_Start_Date")
 
-        st.dataframe(
+    st.dataframe(
         order_tasks,
         use_container_width=True,
         column_config={
