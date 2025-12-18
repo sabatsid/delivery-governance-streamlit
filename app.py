@@ -72,20 +72,21 @@ def program_manager_page():
     st.title("🧭 Program Manager View")
     st.caption("Order-level visibility across the delivery lifecycle")
 
-    # Copy orders data
+    # -------------------------
+    # PREPARE ORDERS DATA
+    # -------------------------
     orders_df = data["orders"].copy()
+    tasks_df = data["tasks"].copy()
 
-    # Convert Order_Start_Date to datetime
     orders_df["Order_Start_Date"] = pd.to_datetime(
         orders_df["Order_Start_Date"]
     )
 
-    # Calculate ageing (in days)
     orders_df["Order_Ageing_Days"] = (
         pd.Timestamp.today() - orders_df["Order_Start_Date"]
     ).dt.days
 
-    # Derive RAG status
+    # Derive RAG
     def derive_rag(row):
         if row["SLA_Breach_Flag"] == "Yes":
             return "Red"
@@ -124,8 +125,7 @@ def program_manager_page():
             default=sorted(orders_df["Order_Type"].unique())
         )
 
-    # Apply filters
-    filtered_df = orders_df[
+    filtered_orders = orders_df[
         (orders_df["Lifecycle_Stage"].isin(lifecycle_filter)) &
         (orders_df["Derived_RAG"].isin(rag_filter)) &
         (orders_df["Order_Type"].isin(order_type_filter))
@@ -137,15 +137,17 @@ def program_manager_page():
     # KPI SUMMARY
     # -------------------------
     col1, col2, col3 = st.columns(3)
-    col1.metric("🔴 Red Orders", (filtered_df["Derived_RAG"] == "Red").sum())
-    col2.metric("🟠 Amber Orders", (filtered_df["Derived_RAG"] == "Amber").sum())
-    col3.metric("🟢 Green Orders", (filtered_df["Derived_RAG"] == "Green").sum())
+    col1.metric("🔴 Red Orders", (filtered_orders["Derived_RAG"] == "Red").sum())
+    col2.metric("🟠 Amber Orders", (filtered_orders["Derived_RAG"] == "Amber").sum())
+    col3.metric("🟢 Green Orders", (filtered_orders["Derived_RAG"] == "Green").sum())
 
     st.divider()
 
     # -------------------------
-    # TABLE WITH RAG HIGHLIGHT
+    # ORDER TABLE
     # -------------------------
+    st.subheader("Order Overview")
+
     def highlight_rag(val):
         if val == "Red":
             return "background-color: #ffcccc"
@@ -155,13 +157,29 @@ def program_manager_page():
             return "background-color: #d9ead3"
         return ""
 
-    styled_df = filtered_df.style.applymap(
+    styled_orders = filtered_orders.style.applymap(
         highlight_rag,
         subset=["Derived_RAG"]
     )
 
-    st.subheader("Order Overview")
-    st.dataframe(styled_df, use_container_width=True)
+    st.dataframe(styled_orders, use_container_width=True)
+
+    # -------------------------
+    # DRILL-DOWN SECTION
+    # -------------------------
+    st.divider()
+    st.subheader("Order Drill-Down: Task Execution History")
+
+    selected_order = st.selectbox(
+        "Select an Order ID to view task details",
+        options=filtered_orders["Order_ID"].unique()
+    )
+
+    order_tasks = tasks_df[
+        tasks_df["Order_ID"] == selected_order
+    ].sort_values("Task_Start_Date")
+
+    st.dataframe(order_tasks, use_container_width=True)
 
     st.divider()
 
