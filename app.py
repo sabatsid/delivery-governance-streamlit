@@ -85,7 +85,7 @@ def program_manager_page():
         pd.Timestamp.today() - orders_df["Order_Start_Date"]
     ).dt.days
 
-    # Derive RAG status (simple logic for demo)
+    # Derive RAG status
     def derive_rag(row):
         if row["SLA_Breach_Flag"] == "Yes":
             return "Red"
@@ -96,17 +96,56 @@ def program_manager_page():
 
     orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
 
-    st.subheader("Order Overview")
+    # -------------------------
+    # FILTERS
+    # -------------------------
+    st.subheader("Filters")
 
-    # RAG summary (quick insight)
     col1, col2, col3 = st.columns(3)
-    col1.metric("🔴 Red Orders", (orders_df["Derived_RAG"] == "Red").sum())
-    col2.metric("🟠 Amber Orders", (orders_df["Derived_RAG"] == "Amber").sum())
-    col3.metric("🟢 Green Orders", (orders_df["Derived_RAG"] == "Green").sum())
+
+    with col1:
+        lifecycle_filter = st.multiselect(
+            "Lifecycle Stage",
+            options=sorted(orders_df["Lifecycle_Stage"].unique()),
+            default=sorted(orders_df["Lifecycle_Stage"].unique())
+        )
+
+    with col2:
+        rag_filter = st.multiselect(
+            "RAG Status",
+            options=["Red", "Amber", "Green"],
+            default=["Red", "Amber", "Green"]
+        )
+
+    with col3:
+        order_type_filter = st.multiselect(
+            "Order Type",
+            options=sorted(orders_df["Order_Type"].unique()),
+            default=sorted(orders_df["Order_Type"].unique())
+        )
+
+    # Apply filters
+    filtered_df = orders_df[
+        (orders_df["Lifecycle_Stage"].isin(lifecycle_filter)) &
+        (orders_df["Derived_RAG"].isin(rag_filter)) &
+        (orders_df["Order_Type"].isin(order_type_filter))
+    ]
 
     st.divider()
 
-    # Color highlighting for RAG
+    # -------------------------
+    # KPI SUMMARY
+    # -------------------------
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🔴 Red Orders", (filtered_df["Derived_RAG"] == "Red").sum())
+    col2.metric("🟠 Amber Orders", (filtered_df["Derived_RAG"] == "Amber").sum())
+    col3.metric("🟢 Green Orders", (filtered_df["Derived_RAG"] == "Green").sum())
+
+    st.divider()
+
+    # -------------------------
+    # TABLE WITH RAG HIGHLIGHT
+    # -------------------------
     def highlight_rag(val):
         if val == "Red":
             return "background-color: #ffcccc"
@@ -116,21 +155,18 @@ def program_manager_page():
             return "background-color: #d9ead3"
         return ""
 
-    styled_df = orders_df.style.applymap(
+    styled_df = filtered_df.style.applymap(
         highlight_rag,
         subset=["Derived_RAG"]
     )
 
-    st.dataframe(
-        styled_df,
-        use_container_width=True
-    )
+    st.subheader("Order Overview")
+    st.dataframe(styled_df, use_container_width=True)
 
     st.divider()
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
-
 
 
 # -------------------------
