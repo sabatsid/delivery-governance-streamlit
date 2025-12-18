@@ -235,7 +235,7 @@ st.dataframe(
     # -------------------------
     # ESCALATION ACTIONS
     # -------------------------
-    st.divider()
+st.divider()
     st.subheader("Escalation Actions")
 
     risky_tasks = order_tasks[
