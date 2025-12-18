@@ -9,6 +9,9 @@ st.set_page_config(
     layout="wide"
 )
 
+if "escalations_log" not in st.session_state:
+    st.session_state["escalations_log"] = []
+
 # -------------------------
 # LOAD EXCEL DATA
 # -------------------------
@@ -98,7 +101,7 @@ def program_manager_page():
     orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
 
 
-    if st.session_state.escalations_log:
+    if st.session_state.get("escalations_log"):
         st.divider()
         st.subheader("Escalation Log")
 
@@ -276,7 +279,8 @@ def program_manager_page():
             )
 
 
-    if st.session_state.escalations_log:
+    if st.session_state.get("escalations_log"):
+
         st.divider()
         st.subheader("Escalation Log")
 
