@@ -246,15 +246,21 @@ def program_manager_page():
     if risky_tasks.empty:
         st.success("No tasks currently require escalation.")
     else:
-        selected_task = st.selectbox(
-            "Select task to escalate",
-            options=risky_tasks["Task_ID"].unique()
+        risky_tasks["Escalation_Key"] = (
+            risky_tasks["Order_ID"] + " | " +
+            risky_tasks["Task_ID"] + " | " +
+            risky_tasks["Task_Status"]
+        )
+    
+        selected_instance = st.selectbox(
+            "Select task instance to escalate",
+            options=risky_tasks["Escalation_Key"].unique()
         )
 
-        escalate_to = st.selectbox(
-            "Escalate to",
-            options=["Operations Manager", "Delivery Head", "Program Leadership"]
-        )
+    # Parse selection
+    selected_order_id = selected_instance.split(" | ")[0]
+    selected_task_id = selected_instance.split(" | ")[1]
+
 
         escalation_reason = st.text_area(
             "Escalation reason",
@@ -263,8 +269,8 @@ def program_manager_page():
 
         if st.button("🚨 Trigger Escalation"):
             st.session_state.escalations_log.append({
-                "Order_ID": selected_order,
-                "Task_ID": selected_task,
+               "Order_ID": selected_order_id,
+                "Task_ID": selected_task_id,
                 "Escalated_To": escalate_to,
                 "Reason": escalation_reason,
                 "Timestamp": pd.Timestamp.now()
