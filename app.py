@@ -101,46 +101,6 @@ def program_manager_page():
 
     orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
 
-    st.divider()
-    st.subheader("Escalation Actions")
-
-    # Identify risky tasks
-    risky_tasks = order_tasks[
-        (order_tasks["Task_Status"].isin(["In Risk", "In Progress"])) |
-        (order_tasks["Escalation_Triggered"] == "Yes")
-    ]
-
-    if risky_tasks.empty:
-        st.success("No tasks currently require escalation.")
-    else:
-        selected_task = st.selectbox(
-            "Select task to escalate",
-            options=risky_tasks["Task_ID"].unique()
-        )
-
-        escalate_to = st.selectbox(
-            "Escalate to",
-            options=["Operations Manager", "Delivery Head", "Program Leadership"]
-        )
-
-        escalation_reason = st.text_area(
-            "Escalation reason",
-            placeholder="Briefly describe why this escalation is required"
-        )
-
-        if st.button("🚨 Trigger Escalation"):
-            st.session_state.escalations_log.append({
-                "Order_ID": selected_order,
-                "Task_ID": selected_task,
-                "Escalated_To": escalate_to,
-                "Reason": escalation_reason,
-                "Timestamp": pd.Timestamp.now()
-            })
-
-            st.error(
-                f"Escalation triggered for Task {selected_task} "
-                f"and routed to {escalate_to}."
-            )
 
     if st.session_state.escalations_log:
         st.divider()
@@ -266,6 +226,64 @@ def program_manager_page():
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
+
+st.dataframe(
+    order_tasks,
+    use_container_width=True
+)
+
+    # -------------------------
+    # ESCALATION ACTIONS
+    # -------------------------
+    st.divider()
+    st.subheader("Escalation Actions")
+
+    risky_tasks = order_tasks[
+        (order_tasks["Task_Status"].isin(["In Risk", "In Progress"])) |
+        (order_tasks["Escalation_Triggered"] == "Yes")
+    ]
+
+    if risky_tasks.empty:
+        st.success("No tasks currently require escalation.")
+    else:
+        selected_task = st.selectbox(
+            "Select task to escalate",
+            options=risky_tasks["Task_ID"].unique()
+        )
+
+        escalate_to = st.selectbox(
+            "Escalate to",
+            options=["Operations Manager", "Delivery Head", "Program Leadership"]
+        )
+
+        escalation_reason = st.text_area(
+            "Escalation reason",
+            placeholder="Briefly describe why this escalation is required"
+        )
+
+        if st.button("🚨 Trigger Escalation"):
+            st.session_state.escalations_log.append({
+                "Order_ID": selected_order,
+                "Task_ID": selected_task,
+                "Escalated_To": escalate_to,
+                "Reason": escalation_reason,
+                "Timestamp": pd.Timestamp.now()
+            })
+
+            st.error(
+                f"Escalation triggered for Task {selected_task} "
+                f"and routed to {escalate_to}."
+            )
+
+    if st.session_state.escalations_log:
+        st.divider()
+        st.subheader("Escalation Log")
+
+        escalation_df = pd.DataFrame(
+            st.session_state.escalations_log
+        )
+
+        st.dataframe(escalation_df, use_container_width=True)
 
 
 # -------------------------
