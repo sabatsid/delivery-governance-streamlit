@@ -383,18 +383,23 @@ def operations_page():
             return ["background-color: #ffe6e6"] * len(row)
         return [""] * len(row)
 
-    styled_tasks = filtered_tasks.style.apply(
+    # Sort BEFORE styling
+    sorted_tasks = filtered_tasks.sort_values(
+        ["Is_Escalated", "Task_Ageing_Hours"],
+        ascending=[False, False]
+    )
+    
+    # Apply styling AFTER sorting
+    styled_tasks = sorted_tasks.style.apply(
         highlight_escalation,
         axis=1
     )
-
+    
     st.dataframe(
-        styled_tasks.sort_values(
-            ["Is_Escalated", "Task_Ageing_Hours"],
-            ascending=[False, False]
-        ),
+        styled_tasks,
         use_container_width=True
     )
+
 
     st.divider()
 
