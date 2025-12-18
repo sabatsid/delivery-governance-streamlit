@@ -44,14 +44,6 @@ def landing_page():
     st.title("Delivery Governance Control Tower")
     st.caption("End-to-end execution and governance across the delivery lifecycle")
     st.divider()
-
-# remove later start
-    
-    st.success("Excel data loaded successfully")
-    st.write("Orders:", data["orders"].shape)
-    st.write("Tasks:", data["tasks"].shape)
-
- # remove later end
     
     st.subheader("Select your role to continue")
 
@@ -78,13 +70,30 @@ def landing_page():
 # -------------------------
 def program_manager_page():
     st.title("🧭 Program Manager View")
-    st.write(
-        "Order-level visibility across the delivery lifecycle to track ageing, "
-        "identify bottlenecks, and trigger escalations."
+    st.caption("Order-level visibility across the delivery lifecycle")
+
+    # Copy orders data
+    orders_df = data["orders"].copy()
+
+    # Convert Order_Start_Date to datetime
+    orders_df["Order_Start_Date"] = pd.to_datetime(
+        orders_df["Order_Start_Date"]
     )
 
-    st.info("This page will show: Orders, lifecycle stage, ageing, SLA breaches, and escalation actions.")
-    
+    # Calculate ageing (in days)
+    orders_df["Order_Ageing_Days"] = (
+        pd.Timestamp.today() - orders_df["Order_Start_Date"]
+    ).dt.days
+
+    st.subheader("Order Overview")
+
+    st.dataframe(
+        orders_df,
+        use_container_width=True
+    )
+
+    st.divider()
+
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
 
