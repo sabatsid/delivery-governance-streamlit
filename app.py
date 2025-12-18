@@ -2,6 +2,14 @@ import streamlit as st
 import pandas as pd
 
 # -------------------------
+# PAGE CONFIG (MUST BE FIRST)
+# -------------------------
+st.set_page_config(
+    page_title="Delivery Governance Control Tower",
+    layout="wide"
+)
+
+# -------------------------
 # LOAD EXCEL DATA
 # -------------------------
 @st.cache_data
@@ -22,15 +30,7 @@ def load_data():
         "escalations": escalation_matrix
     }
 
-
 data = load_data()
-
-
-# Page configuration
-st.set_page_config(
-    page_title="Delivery Governance Control Tower",
-    layout="wide"
-)
 
 # Initialise persona
 if "persona" not in st.session_state:
@@ -45,6 +45,14 @@ def landing_page():
     st.caption("End-to-end execution and governance across the delivery lifecycle")
     st.divider()
 
+# remove later start
+    
+    st.success("Excel data loaded successfully")
+    st.write("Orders:", data["orders"].shape)
+    st.write("Tasks:", data["tasks"].shape)
+
+ # remove later end
+    
     st.subheader("Select your role to continue")
 
     col1, col2, col3, col4 = st.columns(4)
