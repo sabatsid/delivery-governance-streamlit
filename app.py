@@ -236,7 +236,7 @@ st.dataframe(
     # ESCALATION ACTIONS
     # -------------------------
 st.divider()
-    st.subheader("Escalation Actions")
+st.subheader("Escalation Actions")
 
     risky_tasks = order_tasks[
         (order_tasks["Task_Status"].isin(["In Risk", "In Progress"])) |
