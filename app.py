@@ -235,7 +235,7 @@ def program_manager_page():
      # -------------------------
     # ESCALATION ACTIONS
     # -------------------------
-    st.divider()
+       st.divider()
     st.subheader("Escalation Actions")
 
     risky_tasks = order_tasks[
@@ -251,16 +251,19 @@ def program_manager_page():
             risky_tasks["Task_ID"] + " | " +
             risky_tasks["Task_Status"]
         )
-    
+
         selected_instance = st.selectbox(
             "Select task instance to escalate",
             options=risky_tasks["Escalation_Key"].unique()
         )
 
-    # Parse selection
-    selected_order_id = selected_instance.split(" | ")[0]
-    selected_task_id = selected_instance.split(" | ")[1]
+        selected_order_id = selected_instance.split(" | ")[0]
+        selected_task_id = selected_instance.split(" | ")[1]
 
+        escalate_to = st.selectbox(
+            "Escalate to",
+            options=["Operations Manager", "Delivery Head", "Program Leadership"]
+        )
 
         escalation_reason = st.text_area(
             "Escalation reason",
@@ -269,7 +272,7 @@ def program_manager_page():
 
         if st.button("🚨 Trigger Escalation"):
             st.session_state.escalations_log.append({
-               "Order_ID": selected_order_id,
+                "Order_ID": selected_order_id,
                 "Task_ID": selected_task_id,
                 "Escalated_To": escalate_to,
                 "Reason": escalation_reason,
@@ -277,9 +280,10 @@ def program_manager_page():
             })
 
             st.error(
-                f"Escalation triggered for Task {selected_task} "
-                f"and routed to {escalate_to}."
+                f"Escalation triggered for "
+                f"Order {selected_order_id}, Task {selected_task_id}"
             )
+
 
     if st.session_state.escalations_log:
         st.divider()
