@@ -295,80 +295,104 @@ def program_manager_page():
 # -------------------------
 def operations_page():
     st.title("🛠 Operations Task Inbox")
-    st.caption("Task-level execution view for day-to-day operations")
+    st.caption("Prioritised task execution with escalation visibility")
 
     tasks_df = data["tasks"].copy()
-    hold_df = data["holds"].copy()
 
-    # Convert Task_Start_Date to datetime
+    # Prepare dates
     tasks_df["Task_Start_Date"] = pd.to_datetime(
         tasks_df["Task_Start_Date"]
     )
 
-    # Calculate task ageing (hours)
     tasks_df["Task_Ageing_Hours"] = (
         pd.Timestamp.today() - tasks_df["Task_Start_Date"]
     ).dt.total_seconds() / 3600
 
-    # Decode hold reasons
-    hold_lookup = {
-        row["Hold_Code"]: (
-            f"{row['Hold_Reason']} | "
-            f"Owner: {row['Responsibility']} | "
-            f"Category: {row['Category']}"
-        )
-        for _, row in hold_df.iterrows()
-    }
-
-    tasks_df["Hold_Reason_Details"] = (
-        tasks_df["Hold_Reason_Code"]
-        .map(hold_lookup)
-        .fillna("No hold applied")
+    # -------------------------
+    # MERGE ESCALATIONS
+    # -------------------------
+    escalation_log = pd.DataFrame(
+        st.session_state.get("escalations_log", [])
     )
 
+    if not escalation_log.empty:
+        escalation_log["Is_Escalated"] = "Yes"
+
+        tasks_df = tasks_df.merge(
+            escalation_log[[
+                "Order_ID",
+                "Task_ID",
+                "Escalated_To",
+                "Reason"
+            ]],
+            on=["Order_ID", "Task_ID"],
+            how="left"
+        )
+
+        tasks_df["Is_Escalated"] = tasks_df["Escalated_To"].notna().map(
+            {True: "Yes", False: "No"}
+        )
+    else:
+        tasks_df["Is_Escalated"] = "No"
+        tasks_df["Escalated_To"] = ""
+        tasks_df["Reason"] = ""
+
     # -------------------------
-    # FILTERS (OPS RELEVANT)
+    # FILTERS
     # -------------------------
     st.subheader("Filters")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
+        escalation_filter = st.multiselect(
+            "Escalation Status",
+            options=["Yes", "No"],
+            default=["Yes", "No"]
+        )
+
+    with col2:
         status_filter = st.multiselect(
             "Task Status",
             options=sorted(tasks_df["Task_Status"].unique()),
             default=sorted(tasks_df["Task_Status"].unique())
         )
 
-    with col2:
+    with col3:
         lifecycle_filter = st.multiselect(
             "Lifecycle Stage",
             options=sorted(tasks_df["Lifecycle_Stage"].unique()),
             default=sorted(tasks_df["Lifecycle_Stage"].unique())
         )
 
-    with col3:
-        assigned_filter = st.multiselect(
-            "Assigned To",
-            options=sorted(tasks_df["Assigned_To"].unique()),
-            default=sorted(tasks_df["Assigned_To"].unique())
-        )
-
     filtered_tasks = tasks_df[
+        (tasks_df["Is_Escalated"].isin(escalation_filter)) &
         (tasks_df["Task_Status"].isin(status_filter)) &
-        (tasks_df["Lifecycle_Stage"].isin(lifecycle_filter)) &
-        (tasks_df["Assigned_To"].isin(assigned_filter))
+        (tasks_df["Lifecycle_Stage"].isin(lifecycle_filter))
     ]
 
     st.divider()
 
     # -------------------------
-    # TASK INBOX
+    # INBOX TABLE
     # -------------------------
     st.subheader("My Task Inbox")
 
+    def highlight_escalation(row):
+        if row["Is_Escalated"] == "Yes":
+            return ["background-color: #ffe6e6"] * len(row)
+        return [""] * len(row)
+
+    styled_tasks = filtered_tasks.style.apply(
+        highlight_escalation,
+        axis=1
+    )
+
     st.dataframe(
-        filtered_tasks.sort_values("Task_Ageing_Hours", ascending=False),
+        styled_tasks.sort_values(
+            ["Is_Escalated", "Task_Ageing_Hours"],
+            ascending=[False, False]
+        ),
         use_container_width=True
     )
 
@@ -376,7 +400,6 @@ def operations_page():
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
-
 
 # -------------------------
 # LEADERSHIP PAGE
