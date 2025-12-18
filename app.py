@@ -216,16 +216,89 @@ def program_manager_page():
 # OPERATIONS PAGE
 # -------------------------
 def operations_page():
-    st.title("🛠 Operations Team View")
-    st.write(
-        "Task-level execution inbox to manage assigned work, SLAs, "
-        "HOLD reasons, and reassignment requests."
+    st.title("🛠 Operations Task Inbox")
+    st.caption("Task-level execution view for day-to-day operations")
+
+    tasks_df = data["tasks"].copy()
+    hold_df = data["holds"].copy()
+
+    # Convert Task_Start_Date to datetime
+    tasks_df["Task_Start_Date"] = pd.to_datetime(
+        tasks_df["Task_Start_Date"]
     )
 
-    st.info("This page will show: Task inbox, SLAs, RAG status, HOLD reasons, and task actions.")
+    # Calculate task ageing (hours)
+    tasks_df["Task_Ageing_Hours"] = (
+        pd.Timestamp.today() - tasks_df["Task_Start_Date"]
+    ).dt.total_seconds() / 3600
+
+    # Decode hold reasons
+    hold_lookup = {
+        row["Hold_Code"]: (
+            f"{row['Hold_Reason']} | "
+            f"Owner: {row['Responsibility']} | "
+            f"Category: {row['Category']}"
+        )
+        for _, row in hold_df.iterrows()
+    }
+
+    tasks_df["Hold_Reason_Details"] = (
+        tasks_df["Hold_Reason_Code"]
+        .map(hold_lookup)
+        .fillna("No hold applied")
+    )
+
+    # -------------------------
+    # FILTERS (OPS RELEVANT)
+    # -------------------------
+    st.subheader("Filters")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        status_filter = st.multiselect(
+            "Task Status",
+            options=sorted(tasks_df["Task_Status"].unique()),
+            default=sorted(tasks_df["Task_Status"].unique())
+        )
+
+    with col2:
+        lifecycle_filter = st.multiselect(
+            "Lifecycle Stage",
+            options=sorted(tasks_df["Lifecycle_Stage"].unique()),
+            default=sorted(tasks_df["Lifecycle_Stage"].unique())
+        )
+
+    with col3:
+        assigned_filter = st.multiselect(
+            "Assigned To",
+            options=sorted(tasks_df["Assigned_To"].unique()),
+            default=sorted(tasks_df["Assigned_To"].unique())
+        )
+
+    filtered_tasks = tasks_df[
+        (tasks_df["Task_Status"].isin(status_filter)) &
+        (tasks_df["Lifecycle_Stage"].isin(lifecycle_filter)) &
+        (tasks_df["Assigned_To"].isin(assigned_filter))
+    ]
+
+    st.divider()
+
+    # -------------------------
+    # TASK INBOX
+    # -------------------------
+    st.subheader("My Task Inbox")
+
+    st.dataframe(
+        filtered_tasks.sort_values("Task_Ageing_Hours", ascending=False),
+        use_container_width=True
+    )
+
+    st.divider()
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
+
 
 # -------------------------
 # LEADERSHIP PAGE
