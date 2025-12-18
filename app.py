@@ -101,7 +101,7 @@ def program_manager_page():
 
     orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
 
-        st.divider()
+    st.divider()
     st.subheader("Escalation Actions")
 
     # Identify risky tasks
