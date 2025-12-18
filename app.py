@@ -65,10 +65,6 @@ def landing_page():
         if st.button("👤 Customer", use_container_width=True):
             st.session_state.persona = "Customer"
 
-# Initialise escalation log
-if "escalations_log" not in st.session_state:
-    st.session_state.escalations_log = []
-
 # -------------------------
 # PROGRAM MANAGER PAGE
 # -------------------------
@@ -226,12 +222,7 @@ def program_manager_page():
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
-
-    st.dataframe(
-        order_tasks,
-        use_container_width=True
-    )
-    
+        
      # -------------------------
     # ESCALATION ACTIONS
     # -------------------------
