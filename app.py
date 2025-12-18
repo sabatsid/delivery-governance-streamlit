@@ -411,13 +411,71 @@ def leadership_page():
 # CUSTOMER PAGE
 # -------------------------
 def customer_page():
-    st.title("👤 Customer View")
-    st.write(
-        "Simple, high-level order tracking view providing clear delivery status "
-        "and progress milestones."
+    st.title("📦 Track Your Order")
+    st.caption("Simple, real-time visibility into your order status")
+
+    orders_df = data["orders"].copy()
+
+    # Select customer order
+    selected_order = st.selectbox(
+        "Select your Order ID",
+        options=orders_df["Order_ID"].unique()
     )
 
-    st.info("This page will show: Order status timeline and current delivery stage.")
+    order = orders_df[
+        orders_df["Order_ID"] == selected_order
+    ].iloc[0]
+
+    st.divider()
+
+    # High-level status
+    st.subheader("Current Order Status")
+    st.metric(
+        label="Status",
+        value=order["Order_Status"]
+    )
+
+    st.divider()
+
+    # Define simplified milestones
+    milestones = [
+        "Order Confirmed",
+        "Build in Progress",
+        "Installation",
+        "Activation",
+        "Completed"
+    ]
+
+    # Map lifecycle to milestone index
+    lifecycle_to_milestone = {
+        "Lead to Order": 0,
+        "Customer Onboarding": 0,
+        "Build to Order": 1,
+        "Last Mile Build – Wireless": 1,
+        "Last Mile Build – Fiber": 1,
+        "Order to Activation": 3,
+        "Completed": 4
+    }
+
+    current_stage_index = lifecycle_to_milestone.get(
+        order["Lifecycle_Stage"], 1
+    )
+
+    st.subheader("Order Progress")
+
+    for i, milestone in enumerate(milestones):
+        if i < current_stage_index:
+            st.success(f"✅ {milestone}")
+        elif i == current_stage_index:
+            st.warning(f"⏳ {milestone}")
+        else:
+            st.write(f"⬜ {milestone}")
+
+    st.divider()
+
+    st.info(
+        "You will be notified once the next milestone is completed."
+    )
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
