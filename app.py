@@ -194,20 +194,17 @@ def program_manager_page():
         tasks_df["Order_ID"] == selected_order
     ].sort_values("Task_Start_Date")
 
-    st.dataframe(
-        order_tasks,
-        use_container_width=True,
-        column_config={
-            "Hold_Reason_Code": st.column_config.TextColumn(
-                "Hold Reason Code",
-                help="Hover to view hold reason details",
-                tooltip=order_tasks["Hold_Reason_Code"]
-                .map(hold_lookup)
-                .fillna("No hold applied")
-            )
-        }
+      # Decode hold reason details inline
+    order_tasks["Hold_Reason_Details"] = (
+        order_tasks["Hold_Reason_Code"]
+        .map(hold_lookup)
+        .fillna("No hold applied")
     )
 
+    st.dataframe(
+        order_tasks,
+        use_container_width=True
+    )
 
     st.divider()
 
