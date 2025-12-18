@@ -85,10 +85,44 @@ def program_manager_page():
         pd.Timestamp.today() - orders_df["Order_Start_Date"]
     ).dt.days
 
+    # Derive RAG status (simple logic for demo)
+    def derive_rag(row):
+        if row["SLA_Breach_Flag"] == "Yes":
+            return "Red"
+        elif row["Overall_RAG"] == "Amber":
+            return "Amber"
+        else:
+            return "Green"
+
+    orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
+
     st.subheader("Order Overview")
 
+    # RAG summary (quick insight)
+    col1, col2, col3 = st.columns(3)
+    col1.metric("🔴 Red Orders", (orders_df["Derived_RAG"] == "Red").sum())
+    col2.metric("🟠 Amber Orders", (orders_df["Derived_RAG"] == "Amber").sum())
+    col3.metric("🟢 Green Orders", (orders_df["Derived_RAG"] == "Green").sum())
+
+    st.divider()
+
+    # Color highlighting for RAG
+    def highlight_rag(val):
+        if val == "Red":
+            return "background-color: #ffcccc"
+        elif val == "Amber":
+            return "background-color: #fff2cc"
+        elif val == "Green":
+            return "background-color: #d9ead3"
+        return ""
+
+    styled_df = orders_df.style.applymap(
+        highlight_rag,
+        subset=["Derived_RAG"]
+    )
+
     st.dataframe(
-        orders_df,
+        styled_df,
         use_container_width=True
     )
 
@@ -96,6 +130,7 @@ def program_manager_page():
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
+
 
 
 # -------------------------
@@ -112,7 +147,6 @@ def operations_page():
 
     if st.button("⬅ Back to Role Selection"):
         st.session_state.persona = None
-
 
 # -------------------------
 # LEADERSHIP PAGE
