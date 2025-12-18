@@ -73,11 +73,6 @@ def landing_page():
         if st.button("👤 Customer", use_container_width=True):
             st.session_state.persona = "Customer"
 
-st.success("Excel data loaded successfully")
-
-st.write("Orders:", data["orders"].shape)
-st.write("Tasks:", data["tasks"].shape)
-
 # -------------------------
 # PROGRAM MANAGER PAGE
 # -------------------------
