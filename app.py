@@ -210,7 +210,6 @@ def program_manager_page():
     ).dt.days
 
     st.divider()
-    st.subheader("🔎 Focus on a Specific Order")
 
     # -------------------------
     # ORDER SELECTION
