@@ -251,7 +251,7 @@ def program_manager_page():
 
         col1, col2, col3 = st.columns(3)
 
-        col1.metric("Customer", order["Customer_Name"])
+        col1.metric("Customer", order["Client_Name"])
         col2.metric("Lifecycle Stage", order["Lifecycle_Stage"])
         col3.metric("Order Type", order["Order_Type"])
 
