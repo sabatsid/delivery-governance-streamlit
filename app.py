@@ -76,7 +76,7 @@ def landing_page():
 
     st.divider()
 
-    if st.session_state.app_mode == "Demo Mode":
+    if st.session_state.app_mode == "Demo":
         st.subheader("🎭 Select a persona")
 
         col1, col2, col3, col4 = st.columns(4)
