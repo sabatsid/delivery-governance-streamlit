@@ -198,218 +198,147 @@ if st.session_state.get("logged_in"):
 # PROGRAM MANAGER PAGE
 # -------------------------
 def program_manager_page():
-    st.title("🧭 Program Manager View")
-    st.caption("Order-level visibility across the delivery lifecycle")
+    st.title("🧭 Program Master View")
+    st.caption("Portfolio-level visibility with focused order deep dives")
 
-    # -------------------------
-    # PREPARE ORDERS DATA
-    # -------------------------
     orders_df = data["orders"].copy()
     tasks_df = data["tasks"].copy()
 
-    orders_df["Order_Start_Date"] = pd.to_datetime(
-        orders_df["Order_Start_Date"]
-    )
-
+    orders_df["Order_Start_Date"] = pd.to_datetime(orders_df["Order_Start_Date"])
     orders_df["Order_Ageing_Days"] = (
         pd.Timestamp.today() - orders_df["Order_Start_Date"]
     ).dt.days
 
-    # Derive RAG
-    def derive_rag(row):
-        if row["SLA_Breach_Flag"] == "Yes":
-            return "Red"
-        elif row["Overall_RAG"] == "Amber":
-            return "Amber"
-        else:
-            return "Green"
+    st.divider()
+    st.subheader("🔎 Focus on a Specific Order")
 
-    orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
+    # -------------------------
+    # ORDER SELECTION
+    # -------------------------
+    col1, col2 = st.columns(2)
 
+    with col1:
+        manual_order = st.text_input("Enter Order ID")
 
-    if st.session_state.get("escalations_log"):
-        st.divider()
-        st.subheader("Escalation Log")
-
-        escalation_df = pd.DataFrame(
-            st.session_state.escalations_log
+    with col2:
+        selected_order_dropdown = st.selectbox(
+            "Or select from list",
+            options=[""] + sorted(orders_df["Order_ID"].unique().tolist())
         )
 
-        st.dataframe(escalation_df, use_container_width=True)
+    load_clicked = st.button("Load Order")
 
+    selected_order = None
+
+    if load_clicked:
+        selected_order = manual_order.strip() if manual_order else selected_order_dropdown
+
+        if selected_order not in orders_df["Order_ID"].values:
+            st.error("❌ Invalid Order ID. Please check and try again.")
+            selected_order = None
 
     # -------------------------
-    # FILTERS
+    # ORDER SUMMARY
     # -------------------------
-    st.subheader("Filters")
+    if selected_order:
+        order = orders_df[orders_df["Order_ID"] == selected_order].iloc[0]
+
+        st.divider()
+        st.subheader("📄 Order Summary")
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("Customer", order["Customer_Name"])
+        col2.metric("Lifecycle Stage", order["Lifecycle_Stage"])
+        col3.metric("Order Type", order["Order_Type"])
+
+        col1.metric("RAG", order["Overall_RAG"])
+        col2.metric("SLA Breach", order["SLA_Breach_Flag"])
+        col3.metric("Order Ageing (Days)", order["Order_Ageing_Days"])
+
+        # -------------------------
+        # DEEP DIVE
+        # -------------------------
+        if st.button("🔍 Deep Dive into Task Execution"):
+            st.divider()
+            st.subheader("🛠 Task Execution Details")
+
+            order_tasks = tasks_df[
+                tasks_df["Order_ID"] == selected_order
+            ].sort_values("Task_Start_Date")
+
+            st.dataframe(
+                order_tasks[
+                    [
+                        "Task_ID",
+                        "Task_Name",
+                        "Task_Status",
+                        "Assigned_To",
+                        "Task_Start_Date",
+                        "Actual_Hours",
+                        "Hold_Reason_Code"
+                    ]
+                ],
+                use_container_width=True
+            )
+
+    # -------------------------
+    # PORTFOLIO FILTERS
+    # -------------------------
+    st.divider()
+    st.subheader("📊 Portfolio Filters")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
+        rag_filter = st.multiselect(
+            "RAG Status",
+            options=sorted(orders_df["Overall_RAG"].unique()),
+            default=sorted(orders_df["Overall_RAG"].unique())
+        )
+
+    with col2:
+        sla_filter = st.multiselect(
+            "SLA Breach",
+            options=["Yes", "No"],
+            default=["Yes", "No"]
+        )
+
+    with col3:
         lifecycle_filter = st.multiselect(
             "Lifecycle Stage",
             options=sorted(orders_df["Lifecycle_Stage"].unique()),
             default=sorted(orders_df["Lifecycle_Stage"].unique())
         )
 
-    with col2:
-        rag_filter = st.multiselect(
-            "RAG Status",
-            options=["Red", "Amber", "Green"],
-            default=["Red", "Amber", "Green"]
-        )
-
-    with col3:
-        order_type_filter = st.multiselect(
-            "Order Type",
-            options=sorted(orders_df["Order_Type"].unique()),
-            default=sorted(orders_df["Order_Type"].unique())
-        )
-
     filtered_orders = orders_df[
-        (orders_df["Lifecycle_Stage"].isin(lifecycle_filter)) &
-        (orders_df["Derived_RAG"].isin(rag_filter)) &
-        (orders_df["Order_Type"].isin(order_type_filter))
+        (orders_df["Overall_RAG"].isin(rag_filter)) &
+        (orders_df["SLA_Breach_Flag"].isin(sla_filter)) &
+        (orders_df["Lifecycle_Stage"].isin(lifecycle_filter))
     ]
 
     st.divider()
-
-    # -------------------------
-    # KPI SUMMARY
-    # -------------------------
-    col1, col2, col3 = st.columns(3)
-    col1.metric("🔴 Red Orders", (filtered_orders["Derived_RAG"] == "Red").sum())
-    col2.metric("🟠 Amber Orders", (filtered_orders["Derived_RAG"] == "Amber").sum())
-    col3.metric("🟢 Green Orders", (filtered_orders["Derived_RAG"] == "Green").sum())
-
-    st.divider()
-
-    # -------------------------
-    # ORDER TABLE
-    # -------------------------
-    st.subheader("Order Overview")
-
-    def highlight_rag(val):
-        if val == "Red":
-            return "background-color: #ffcccc"
-        elif val == "Amber":
-            return "background-color: #fff2cc"
-        elif val == "Green":
-            return "background-color: #d9ead3"
-        return ""
-
-    styled_orders = filtered_orders.style.applymap(
-        highlight_rag,
-        subset=["Derived_RAG"]
-    )
-
-    st.dataframe(styled_orders, use_container_width=True)
-
-    # -------------------------
-    # HOLD REASON LOOKUP
-    # -------------------------
-    hold_df = data["holds"].copy()
-
-    hold_lookup = {
-        row["Hold_Code"]: (
-            f"{row['Hold_Reason']} | "
-            f"Owner: {row['Responsibility']} | "
-            f"Category: {row['Category']} | "
-            f"Delay: {row['Delayed_TAT']}"
-        )
-        for _, row in hold_df.iterrows()
-    }
-
-    # -------------------------
-    # DRILL-DOWN SECTION
-    # -------------------------
-    st.divider()
-    st.subheader("Order Drill-Down: Task Execution History")
-
-    selected_order = st.selectbox(
-        "Select an Order ID to view task details",
-        options=filtered_orders["Order_ID"].unique()
-    )
-
-    order_tasks = tasks_df[
-        tasks_df["Order_ID"] == selected_order
-    ].sort_values("Task_Start_Date")
-
-      # Decode hold reason details inline
-    order_tasks["Hold_Reason_Details"] = (
-        order_tasks["Hold_Reason_Code"]
-        .map(hold_lookup)
-        .fillna("No hold applied")
-    )
+    st.subheader("📋 Filtered Orders")
 
     st.dataframe(
-        order_tasks,
+        filtered_orders[
+            [
+                "Order_ID",
+                "Customer_Name",
+                "Lifecycle_Stage",
+                "Order_Type",
+                "Overall_RAG",
+                "SLA_Breach_Flag",
+                "Order_Ageing_Days"
+            ]
+        ],
         use_container_width=True
     )
-        
-     # -------------------------
-    # ESCALATION ACTIONS
-    # -------------------------
+
     st.divider()
-    st.subheader("Escalation Actions")
 
-    risky_tasks = order_tasks[
-        (order_tasks["Task_Status"].isin(["In Risk", "In Progress"])) |
-        (order_tasks["Escalation_Triggered"] == "Yes")
-    ]
-
-    if risky_tasks.empty:
-        st.success("No tasks currently require escalation.")
-    else:
-        risky_tasks["Escalation_Key"] = (
-            risky_tasks["Order_ID"] + " | " +
-            risky_tasks["Task_ID"] + " | " +
-            risky_tasks["Task_Status"]
-        )
-
-        selected_instance = st.selectbox(
-            "Select task instance to escalate",
-            options=risky_tasks["Escalation_Key"].unique()
-        )
-
-        selected_order_id = selected_instance.split(" | ")[0]
-        selected_task_id = selected_instance.split(" | ")[1]
-
-        escalate_to = st.selectbox(
-            "Escalate to",
-            options=["Operations Manager", "Delivery Head", "Program Leadership"]
-        )
-
-        escalation_reason = st.text_area(
-            "Escalation reason",
-            placeholder="Briefly describe why this escalation is required"
-        )
-
-        if st.button("🚨 Trigger Escalation"):
-            st.session_state.escalations_log.append({
-                "Order_ID": selected_order_id,
-                "Task_ID": selected_task_id,
-                "Escalated_To": escalate_to,
-                "Reason": escalation_reason,
-                "Timestamp": pd.Timestamp.now()
-            })
-
-            st.error(
-                f"Escalation triggered for "
-                f"Order {selected_order_id}, Task {selected_task_id}"
-            )
-
-
-    if st.session_state.get("escalations_log"):
-
-        st.divider()
-        st.subheader("Escalation Log")
-
-        escalation_df = pd.DataFrame(
-            st.session_state.escalations_log
-        )
-
-        st.dataframe(escalation_df, use_container_width=True)    
+    if st.button("⬅ Back to Role Selection"):
+        st.session_state.persona = None
 
 # -------------------------
 # OPERATIONS PAGE
