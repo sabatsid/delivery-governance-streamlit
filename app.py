@@ -232,33 +232,33 @@ def program_manager_page():
         st.subheader("📊 Program Master View")
         st.divider()
 
-# -------------------------
-# KPI SUMMARY
-# -------------------------
-total_orders = len(orders_df)
-
-breached_orders = (
-    orders_df["SLA_Breach_Flag"] == "Yes"
-).sum()
-
-at_risk_orders = (
-    orders_df["Overall_RAG"] == "Amber"
-).sum()
-
-avg_ageing = round(
-    orders_df["Order_Ageing_Days"].mean(), 1
-)
-
-k1, k2, k3, k4 = st.columns(4)
-
-k1.metric("📦 Total Orders", total_orders)
-k2.metric("🔴 SLA Breaches", breached_orders)
-k3.metric("🟠 At-Risk Orders", at_risk_orders)
-k4.metric("⏱ Avg Ageing (Days)", avg_ageing)
-
-        st.caption("Portfolio-wide visibility with focused order-level deep dives")
-
-        st.divider()
+        # -------------------------
+        # KPI SUMMARY
+        # -------------------------
+        total_orders = len(orders_df)
+        
+        breached_orders = (
+            orders_df["SLA_Breach_Flag"] == "Yes"
+        ).sum()
+        
+        at_risk_orders = (
+            orders_df["Overall_RAG"] == "Amber"
+        ).sum()
+        
+        avg_ageing = round(
+            orders_df["Order_Ageing_Days"].mean(), 1
+        )
+        
+        k1, k2, k3, k4 = st.columns(4)
+        
+        k1.metric("📦 Total Orders", total_orders)
+        k2.metric("🔴 SLA Breaches", breached_orders)
+        k3.metric("🟠 At-Risk Orders", at_risk_orders)
+        k4.metric("⏱ Avg Ageing (Days)", avg_ageing)
+        
+                st.caption("Portfolio-wide visibility with focused order-level deep dives")
+        
+                st.divider()
 
         # -------------------------
         # ORDER SELECTION
