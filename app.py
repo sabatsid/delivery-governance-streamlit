@@ -195,22 +195,18 @@ if st.session_state.get("logged_in"):
             logout()
 
 # -------------------------
-# PROGRAM MANAGER PAGE
+# PROGRAM MANAGER
 # -------------------------
 def clear_program_filters():
-    st.session_state.rag_filter = []
-    st.session_state.sla_filter = []
-    st.session_state.lifecycle_filter = []
+    st.session_state["rag_filter"] = []
+    st.session_state["sla_filter"] = []
+    st.session_state["lifecycle_filter"] = []
 
-   # for reset
-    for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
-        if key not in st.session_state:
-            st.session_state[key] = []
-    # for reset
 
 def program_manager_page():
     st.title("🧭 Program Manager")
     st.caption("End-to-end portfolio oversight and program governance")
+
     orders_df = data["orders"].copy()
     tasks_df = data["tasks"].copy()
 
@@ -219,7 +215,6 @@ def program_manager_page():
         pd.Timestamp.today() - orders_df["Order_Start_Date"]
     ).dt.days
 
-    st.divider()
     # -------------------------
     # TOP TABS
     # -------------------------
@@ -237,208 +232,166 @@ def program_manager_page():
         st.subheader("📊 Program Master View")
         st.caption("Portfolio-wide visibility with focused order-level deep dives")
 
-
-    # -------------------------
-    # ORDER SELECTION
-    # -------------------------
-    st.subheader("🔎 Focus on a Specific Order")
-    
-    # 🔹 IMPORTANT: adjust this column name if needed
-    CUSTOMER_COL = "Client_Name"  # change if your sheet uses a different name
-    
-    order_options = (
-        orders_df["Order_ID"] + " | " + orders_df[CUSTOMER_COL]
-    ).tolist()
-    
-    selected_option = st.selectbox(
-        "Search or select an order (type Order ID or Customer)",
-        options=[""] + sorted(order_options),
-        index=0
-    )
-    
-    selected_order = None
-    
-    if selected_option:
-        selected_order = selected_option.split(" | ")[0]
-    
-        if selected_order not in orders_df["Order_ID"].values:
-            st.error("❌ Incorrect Order ID selected.")
-            selected_order = None
-
-
-    # -------------------------
-    # ORDER SUMMARY
-    # -------------------------
-    if selected_order:
-        order = orders_df[orders_df["Order_ID"] == selected_order].iloc[0]
-
         st.divider()
-        st.subheader("📄 Order Summary")
 
-        col1, col2, col3 = st.columns(3)
+        # -------------------------
+        # ORDER SELECTION
+        # -------------------------
+        CUSTOMER_COL = "Client_Name"
 
-        col1.metric("Customer", order["Client_Name"])
-        col2.metric("Lifecycle Stage", order["Lifecycle_Stage"])
-        col3.metric("Order Type", order["Order_Type"])
+        order_options = (
+            orders_df["Order_ID"] + " | " + orders_df[CUSTOMER_COL]
+        ).tolist()
 
-        col1.metric("RAG", order["Overall_RAG"])
-        col2.metric("SLA Breach", order["SLA_Breach_Flag"])
-        col3.metric("Order Ageing (Days)", order["Order_Ageing_Days"])
-
-    # -------------------------
-    # DEEP DIVE
-    # -------------------------
-    if st.button("🔍 Deep Dive into Task Execution"):
-        st.divider()
-        st.subheader("🛠 Task Execution Details")
-    
-        order_tasks = tasks_df[
-            tasks_df["Order_ID"] == selected_order
-        ]
-    
-        if "Task_Start_Date" in order_tasks.columns:
-            order_tasks = order_tasks.sort_values("Task_Start_Date")
-    
-        desired_columns = [
-            "Task_ID",
-            "Task_Name",
-            "Task_Status",
-            "Assigned_To",
-            "Task_Start_Date",
-            "Actual_Hours",
-            "Hold_Reason_Code"
-        ]
-    
-        available_columns = [
-            col for col in desired_columns if col in order_tasks.columns
-        ]
-    
-        st.dataframe(
-            order_tasks[available_columns],
-            use_container_width=True
+        selected_option = st.selectbox(
+            "Search or select an order (Order ID or Customer)",
+            options=[""] + sorted(order_options)
         )
 
+        selected_order = None
+        if selected_option:
+            selected_order = selected_option.split(" | ")[0]
 
-    # -------------------------
-    # PORTFOLIO FILTERS
-    # -------------------------
+        # -------------------------
+        # ORDER SUMMARY
+        # -------------------------
+        if selected_order:
+            order = orders_df[
+                orders_df["Order_ID"] == selected_order
+            ].iloc[0]
+
+            st.divider()
+            st.subheader("📄 Order Summary")
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Customer", order["Client_Name"])
+            c2.metric("Lifecycle Stage", order["Lifecycle_Stage"])
+            c3.metric("Order Type", order["Order_Type"])
+
+            c1.metric("RAG", order["Overall_RAG"])
+            c2.metric("SLA Breach", order["SLA_Breach_Flag"])
+            c3.metric("Order Ageing (Days)", order["Order_Ageing_Days"])
+
+            # -------------------------
+            # DEEP DIVE
+            # -------------------------
+            if st.button("🔍 Deep Dive into Task Execution"):
+                st.subheader("🛠 Task Execution Details")
+
+                order_tasks = tasks_df[
+                    tasks_df["Order_ID"] == selected_order
+                ]
+
+                if "Task_Start_Date" in order_tasks.columns:
+                    order_tasks = order_tasks.sort_values("Task_Start_Date")
+
+                display_cols = [
+                    c for c in [
+                        "Task_ID",
+                        "Task_Name",
+                        "Task_Status",
+                        "Assigned_To",
+                        "Task_Start_Date",
+                        "Actual_Hours",
+                        "Hold_Reason_Code"
+                    ]
+                    if c in order_tasks.columns
+                ]
+
+                st.dataframe(order_tasks[display_cols], use_container_width=True)
+
+        # -------------------------
+        # PORTFOLIO FILTERS (ALWAYS VISIBLE)
+        # -------------------------
         st.divider()
         st.subheader("📊 Portfolio Filters")
-        
+
         col1, col2, col3 = st.columns(3)
-            
+
         with col1:
             st.multiselect(
                 "RAG Status",
-                options=sorted(orders_df["Overall_RAG"].dropna().unique()),
+                sorted(orders_df["Overall_RAG"].dropna().unique()),
                 key="rag_filter"
             )
-        
+
         with col2:
             st.multiselect(
                 "SLA Breach",
-                options=["Yes", "No"],
+                ["Yes", "No"],
                 key="sla_filter"
             )
-        
+
         with col3:
             st.multiselect(
                 "Lifecycle Stage",
-                options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
+                sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
                 key="lifecycle_filter"
             )
-    
-        col_apply, col_clear = st.columns([1, 1])
-        
-        with col_apply:
+
+        c_apply, c_clear = st.columns(2)
+
+        with c_apply:
             apply_filters = st.button("✅ Apply Filters")
-        
-        with col_clear:
-            st.button(
-                "🧹 Clear Filters",
-                on_click=clear_program_filters
-            )
-    
-        filtered_orders = orders_df.copy()
-    
+
+        with c_clear:
+            st.button("🧹 Clear Filters", on_click=clear_program_filters)
+
+        # -------------------------
+        # FILTERED RESULTS
+        # -------------------------
         if apply_filters:
-            if st.session_state.rag_filter:
+            filtered_orders = orders_df.copy()
+
+            if st.session_state["rag_filter"]:
                 filtered_orders = filtered_orders[
-                    filtered_orders["Overall_RAG"].isin(st.session_state.rag_filter)
+                    filtered_orders["Overall_RAG"].isin(st.session_state["rag_filter"])
                 ]
-        
-            if st.session_state.sla_filter:
+
+            if st.session_state["sla_filter"]:
                 filtered_orders = filtered_orders[
-                    filtered_orders["SLA_Breach_Flag"].isin(st.session_state.sla_filter)
+                    filtered_orders["SLA_Breach_Flag"].isin(st.session_state["sla_filter"])
                 ]
-        
-            if st.session_state.lifecycle_filter:
+
+            if st.session_state["lifecycle_filter"]:
                 filtered_orders = filtered_orders[
                     filtered_orders["Lifecycle_Stage"].isin(
-                        st.session_state.lifecycle_filter
+                        st.session_state["lifecycle_filter"]
                     )
                 ]
-    
-    
-        st.divider()
-        st.subheader("📋 Filtered Orders")
-        
-        if apply_filters:
+
+            st.divider()
+            st.subheader("📋 Filtered Orders")
+
             if filtered_orders.empty:
-                st.warning("No orders match the selected filters.")
+                st.warning("No orders match selected filters.")
             else:
-                display_cols = [
-                    "Order_ID",
-                    "Client_Name",
-                    "Lifecycle_Stage",
-                    "Order_Type",
-                    "Overall_RAG",
-                    "SLA_Breach_Flag",
-                    "Order_Ageing_Days"
-                ]
-                display_cols = [c for c in display_cols if c in filtered_orders.columns]
-        
                 st.dataframe(
-                    filtered_orders[display_cols],
+                    filtered_orders[
+                        [
+                            "Order_ID",
+                            "Client_Name",
+                            "Lifecycle_Stage",
+                            "Order_Type",
+                            "Overall_RAG",
+                            "SLA_Breach_Flag",
+                            "Order_Ageing_Days"
+                        ]
+                    ],
                     use_container_width=True
                 )
-        else:
-            st.info("Select filters and click **Apply Filters** to view results.")
-    
-    
-        # ======================================================
-        # TAB 2 — INDIVIDUAL PROGRAM VIEW (PLACEHOLDER)
-        # ======================================================
-        with tab2:
-            st.subheader("📁 Individual Program View")
-            st.info(
-                "This view will show only orders mapped to the current Program Manager "
-                "based on lifecycle ownership and operations team alignment."
-            )
-            st.caption("🚧 Coming soon")
-    
-        # ======================================================
-        # TAB 3 — ESCALATIONS (PLACEHOLDER)
-        # ======================================================
-        with tab3:
-            st.subheader("🚨 Escalations")
-            st.info(
-                "This section will provide a consolidated view of all escalations raised, "
-                "their status, ageing, and resolution ownership."
-            )
-            st.caption("🚧 Coming soon")
-    
-        # ======================================================
-        # TAB 4 — RESOURCE ALLOCATION (PLACEHOLDER)
-        # ======================================================
-        with tab4:
-            st.subheader("👥 Resource Allocation")
-            st.info(
-                "This view will help track which operations resources are working on which "
-                "orders, workload distribution, and availability."
-            )
-            st.caption("🚧 Coming soon")
 
+    # ======================================================
+    # TAB 2 — PLACEHOLDERS
+    # ======================================================
+    with tab2:
+        st.info("🚧 Individual Program View — Coming soon")
+
+    with tab3:
+        st.info("🚧 Escalations — Coming soon")
+
+    with tab4:
+        st.info("🚧 Resource Allocation — Coming soon")
 
 # -------------------------
 # OPERATIONS PAGE
