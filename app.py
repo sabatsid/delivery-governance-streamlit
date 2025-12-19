@@ -423,111 +423,46 @@ def program_manager_page():
 # OPERATIONS PAGE
 # -------------------------
 def operations_page():
-    st.title("🛠 Operations Task Inbox")
-    st.caption("Prioritised task execution with escalation visibility")
+    st.title("🛠 Operations Execution Hub")
+    st.caption("Task execution, customer requests, and program escalations")
 
-    tasks_df = data["tasks"].copy()
-
-    # Prepare dates
-    tasks_df["Task_Start_Date"] = pd.to_datetime(
-        tasks_df["Task_Start_Date"]
-    )
-
-    tasks_df["Task_Ageing_Hours"] = (
-        pd.Timestamp.today() - tasks_df["Task_Start_Date"]
-    ).dt.total_seconds() / 3600
+    tab1, tab2, tab3 = st.tabs([
+        "📋 My Task Inbox",
+        "🎫 Customer Tickets",
+        "🚨 Program Escalations"
+    ])
 
     # -------------------------
-    # MERGE ESCALATIONS
+    # TAB 1: MY TASK INBOX
     # -------------------------
-    escalation_log = pd.DataFrame(
-        st.session_state.get("escalations_log", [])
-    )
+    with tab1:
+        st.subheader("📋 My Task Inbox")
+        st.caption("Tasks assigned to you or your team")
 
-    if not escalation_log.empty:
-        escalation_log["Is_Escalated"] = "Yes"
+        # 👉 KEEP YOUR EXISTING TASK INBOX CODE HERE
+        # (no change for now)
 
-        tasks_df = tasks_df.merge(
-            escalation_log[[
-                "Order_ID",
-                "Task_ID",
-                "Escalated_To",
-                "Reason"
-            ]],
-            on=["Order_ID", "Task_ID"],
-            how="left"
+    # -------------------------
+    # TAB 2: CUSTOMER TICKETS
+    # -------------------------
+    with tab2:
+        st.subheader("🎫 Customer Tickets")
+        st.info(
+            "Tickets raised by customers based on their current lifecycle stage. "
+            "These require immediate operational action."
         )
-
-        tasks_df["Is_Escalated"] = tasks_df["Escalated_To"].notna().map(
-            {True: "Yes", False: "No"}
-        )
-    else:
-        tasks_df["Is_Escalated"] = "No"
-        tasks_df["Escalated_To"] = ""
-        tasks_df["Reason"] = ""
+        st.caption("🚧 Coming next")
 
     # -------------------------
-    # FILTERS
+    # TAB 3: PROGRAM ESCALATIONS
     # -------------------------
-    st.subheader("Filters")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        escalation_filter = st.multiselect(
-            "Escalation Status",
-            options=["Yes", "No"],
-            default=["Yes", "No"]
+    with tab3:
+        st.subheader("🚨 Program Escalations & Requests")
+        st.info(
+            "Escalations and action requests raised by Program Managers "
+            "for delayed or at-risk orders."
         )
-
-    with col2:
-        status_filter = st.multiselect(
-            "Task Status",
-            options=sorted(tasks_df["Task_Status"].unique()),
-            default=sorted(tasks_df["Task_Status"].unique())
-        )
-
-    with col3:
-        lifecycle_filter = st.multiselect(
-            "Lifecycle Stage",
-            options=sorted(tasks_df["Lifecycle_Stage"].unique()),
-            default=sorted(tasks_df["Lifecycle_Stage"].unique())
-        )
-
-    filtered_tasks = tasks_df[
-        (tasks_df["Is_Escalated"].isin(escalation_filter)) &
-        (tasks_df["Task_Status"].isin(status_filter)) &
-        (tasks_df["Lifecycle_Stage"].isin(lifecycle_filter))
-    ]
-
-    st.divider()
-
-    # -------------------------
-    # INBOX TABLE
-    # -------------------------
-    st.subheader("My Task Inbox")  
-
-    def highlight_escalation(row):
-        if row["Is_Escalated"] == "Yes":
-            return ["background-color: #ffe6e6"] * len(row)
-        return [""] * len(row)
-
-    # Sort BEFORE styling
-    sorted_tasks = filtered_tasks.sort_values(
-        ["Is_Escalated", "Task_Ageing_Hours"],
-        ascending=[False, False]
-    )
-    
-    # Apply styling AFTER sorting
-    styled_tasks = sorted_tasks.style.apply(
-        highlight_escalation,
-        axis=1
-    )
-    
-    st.dataframe(
-        styled_tasks,
-        use_container_width=True
-    )
+        st.caption("🚧 Coming next")
 
 # -------------------------
 # LEADERSHIP PAGE
