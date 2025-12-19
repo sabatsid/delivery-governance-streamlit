@@ -215,27 +215,28 @@ def program_manager_page():
     # -------------------------
     # ORDER SELECTION
     # -------------------------
-    col1, col2 = st.columns(2)
-
-    with col1:
-        manual_order = st.text_input("Enter Order ID")
-
-    with col2:
-        selected_order_dropdown = st.selectbox(
-            "Or select from list",
-            options=[""] + sorted(orders_df["Order_ID"].unique().tolist())
-        )
-
-    load_clicked = st.button("Load Order")
-
+    st.subheader("🔎 Focus on a Specific Order")
+    
+    # Build dropdown options as "OrderID - Customer Name"
+    order_options = (
+        orders_df["Order_ID"] + " – " + orders_df["Customer_Name"]
+    ).tolist()
+    
+    selected_option = st.selectbox(
+        "Search or select an order",
+        options=[""] + sorted(order_options),
+        help="Start typing Order ID or Customer Name"
+    )
+    
     selected_order = None
-
-    if load_clicked:
-        selected_order = manual_order.strip() if manual_order else selected_order_dropdown
-
+    
+    if selected_option:
+        selected_order = selected_option.split(" – ")[0]
+    
         if selected_order not in orders_df["Order_ID"].values:
             st.error("❌ Invalid Order ID. Please check and try again.")
             selected_order = None
+
 
     # -------------------------
     # ORDER SUMMARY
