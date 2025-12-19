@@ -217,24 +217,26 @@ def program_manager_page():
     # -------------------------
     st.subheader("🔎 Focus on a Specific Order")
     
-    # Build dropdown options as "OrderID - Customer Name"
+    # 🔹 IMPORTANT: adjust this column name if needed
+    CUSTOMER_COL = "Customer_Name"  # change if your sheet uses a different name
+    
     order_options = (
-        orders_df["Order_ID"] + " – " + orders_df["Customer_Name"]
+        orders_df["Order_ID"] + " | " + orders_df[CUSTOMER_COL]
     ).tolist()
     
     selected_option = st.selectbox(
-        "Search or select an order",
+        "Search or select an order (type Order ID or Customer)",
         options=[""] + sorted(order_options),
-        help="Start typing Order ID or Customer Name"
+        index=0
     )
     
     selected_order = None
     
     if selected_option:
-        selected_order = selected_option.split(" – ")[0]
+        selected_order = selected_option.split(" | ")[0]
     
         if selected_order not in orders_df["Order_ID"].values:
-            st.error("❌ Invalid Order ID. Please check and try again.")
+            st.error("❌ Incorrect Order ID selected.")
             selected_order = None
 
 
