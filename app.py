@@ -13,6 +13,13 @@ if "escalations_log" not in st.session_state:
     st.session_state["escalations_log"] = []
 
 # -------------------------
+# APP MODE (Demo vs Secure)
+# -------------------------
+if "app_mode" not in st.session_state:
+    st.session_state.app_mode = "Demo"
+
+
+# -------------------------
 # LOAD EXCEL DATA
 # -------------------------
 @st.cache_data
@@ -58,26 +65,61 @@ def landing_page():
     st.title("Delivery Governance Control Tower")
     st.caption("End-to-end execution and governance across the delivery lifecycle")
     st.divider()
-    
-    st.subheader("Select your role to continue")
 
-    col1, col2, col3, col4 = st.columns(4)
+    # Mode toggle
+    st.radio(
+        "Select access mode",
+        ["Demo Mode", "Secure Login"],
+        horizontal=True,
+        key="app_mode"
+    )
 
-    with col1:
-        if st.button("🧭 Program Manager", use_container_width=True):
-            st.session_state.persona = "Program Manager"
+    st.divider()
 
-    with col2:
-        if st.button("🛠 Operations Team", use_container_width=True):
-            st.session_state.persona = "Operations"
+    if st.session_state.app_mode == "Demo Mode":
+        st.subheader("🎭 Select a persona")
 
-    with col3:
-        if st.button("📊 Leadership", use_container_width=True):
-            st.session_state.persona = "Leadership"
+        col1, col2, col3, col4 = st.columns(4)
 
-    with col4:
-        if st.button("👤 Customer", use_container_width=True):
-            st.session_state.persona = "Customer"
+        with col1:
+            if st.button("🧭 Program Manager"):
+                st.session_state.persona = "Program"
+                st.session_state.logged_in = True
+                st.session_state.user_profile = {
+                    "POC_Name": "Demo Program Manager"
+                }
+
+        with col2:
+            if st.button("🛠 Operations Team"):
+                st.session_state.persona = "Operations"
+                st.session_state.logged_in = True
+                st.session_state.user_profile = {
+                    "POC_Name": "Demo Operations User",
+                    "Team_Name": "OPS_L2O"
+                }
+
+        with col3:
+            if st.button("📊 Leadership"):
+                st.session_state.persona = "Leader"
+                st.session_state.logged_in = True
+                st.session_state.user_profile = {
+                    "POC_Name": "Demo Leadership"
+                }
+
+        with col4:
+            if st.button("👤 Customer"):
+                st.session_state.persona = "Customer"
+                st.session_state.logged_in = True
+                st.session_state.user_profile = {
+                    "POC_Name": "Demo Customer",
+                    "Order_ID": data["orders"]["Order_ID"].iloc[0]
+                }
+
+        st.caption("⚡ One-click access for presentations")
+
+    else:
+        login_page()
+
 
 def login_page():
     st.title("🔐 Secure Login")
@@ -652,7 +694,7 @@ def customer_page():
 # PAGE ROUTING
 # -------------------------
 if not st.session_state.logged_in:
-    login_page()
+    landing_page()
 
 elif st.session_state.persona == "Program":
     program_manager_page()
@@ -665,3 +707,4 @@ elif st.session_state.persona == "Leader":
 
 elif st.session_state.persona == "Customer":
     customer_page()
+
