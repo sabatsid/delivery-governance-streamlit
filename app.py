@@ -220,11 +220,6 @@ def program_manager_page():
         order_tasks,
         use_container_width=True
     )
-
-    st.divider()
-
-    if st.button("⬅ Back to Role Selection"):
-        st.session_state.persona = None
         
      # -------------------------
     # ESCALATION ACTIONS
@@ -289,6 +284,11 @@ def program_manager_page():
         )
 
         st.dataframe(escalation_df, use_container_width=True)    
+
+    st.divider()
+
+    if st.button("⬅ Back to Role Selection"):
+        st.session_state.persona = None
 
 # -------------------------
 # OPERATIONS PAGE
