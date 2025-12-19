@@ -426,7 +426,9 @@ tickets_df = pd.DataFrame(
 )
 
 # Logged-in ops team
-ops_team = st.session_state.user_profile.get("Team_Name")
+# Logged-in ops team (safe access)
+user_profile = st.session_state.get("user_profile", {})
+ops_team = user_profile.get("Team_Name")
 
 if not tickets_df.empty:
     ops_tickets = tickets_df[
