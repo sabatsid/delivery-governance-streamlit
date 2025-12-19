@@ -115,6 +115,19 @@ def logout():
     st.session_state.persona = None
     st.rerun()
 
+# -------------------------
+# SIDEBAR (GLOBAL)
+# -------------------------
+if st.session_state.get("logged_in"):
+    with st.sidebar:
+        st.markdown("### 👤 Logged in as")
+        st.write(st.session_state.user_profile["POC_Name"])
+        st.write(f"Role: {st.session_state.persona}")
+
+        st.divider()
+
+        if st.button("🚪 Logout"):
+            logout()
 
 # -------------------------
 # PROGRAM MANAGER PAGE
