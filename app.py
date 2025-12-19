@@ -329,10 +329,12 @@ def program_manager_page():
 
     st.divider()
     st.subheader("📋 Filtered Orders")
-
-    st.dataframe(
-        filtered_orders[
-            [
+    
+    if apply_filters:
+        if filtered_orders.empty:
+            st.warning("No orders match the selected filters.")
+        else:
+            display_cols = [
                 "Order_ID",
                 "Client_Name",
                 "Lifecycle_Stage",
@@ -341,14 +343,15 @@ def program_manager_page():
                 "SLA_Breach_Flag",
                 "Order_Ageing_Days"
             ]
-        ],
-        use_container_width=True
-    )
+            display_cols = [c for c in display_cols if c in filtered_orders.columns]
+    
+            st.dataframe(
+                filtered_orders[display_cols],
+                use_container_width=True
+            )
+    else:
+        st.info("Select filters and click **Apply Filters** to view results.")
 
-    st.divider()
-
-    if st.button("⬅ Back to Role Selection"):
-        st.session_state.persona = None
 
 # -------------------------
 # OPERATIONS PAGE
