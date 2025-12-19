@@ -39,6 +39,15 @@ data = load_data()
 if "persona" not in st.session_state:
     st.session_state.persona = None
 
+# -------------------------
+# AUTHENTICATION STATE
+# -------------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "user_profile" not in st.session_state:
+    st.session_state.user_profile = None
+
 
 # -------------------------
 # LANDING PAGE (4 DOORS)
@@ -67,6 +76,43 @@ def landing_page():
     with col4:
         if st.button("👤 Customer", use_container_width=True):
             st.session_state.persona = "Customer"
+
+def login_page():
+    st.title("🔐 Secure Login")
+    st.caption("Access the Delivery Governance Control Tower")
+
+    login_id = st.text_input("Login ID")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        creds = data["login"]
+
+        user = creds[
+            (creds["Login_ID"] == login_id) &
+            (creds["Password"] == password) &
+            (creds["Active_Flag"] == "Y")
+        ]
+
+        if user.empty:
+            st.error("Invalid credentials or inactive account.")
+        else:
+            user_record = user.iloc[0].to_dict()
+
+            st.session_state.logged_in = True
+            st.session_state.user_profile = user_record
+
+            # Auto-set persona based on Type
+            st.session_state.persona = user_record["Type"]
+
+            st.success(f"Welcome {user_record['POC_Name']}!")
+            st.rerun()
+
+def logout():
+    st.session_state.logged_in = False
+    st.session_state.user_profile = None
+    st.session_state.persona = None
+    st.rerun()
+
 
 # -------------------------
 # PROGRAM MANAGER PAGE
@@ -590,16 +636,16 @@ def customer_page():
 # -------------------------
 # PAGE ROUTING
 # -------------------------
-if st.session_state.persona is None:
-    landing_page()
+if not st.session_state.logged_in:
+    login_page()
 
-elif st.session_state.persona == "Program Manager":
+elif st.session_state.persona == "Program":
     program_manager_page()
 
 elif st.session_state.persona == "Operations":
     operations_page()
 
-elif st.session_state.persona == "Leadership":
+elif st.session_state.persona == "Leader":
     leadership_page()
 
 elif st.session_state.persona == "Customer":
