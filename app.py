@@ -24,6 +24,7 @@ def load_data():
     task_dictionary = pd.read_excel(excel_file, sheet_name="Process_Task_Dictionary")
     hold_reasons = pd.read_excel(excel_file, sheet_name="Hold_Reason_LOV")
     escalation_matrix = pd.read_excel(excel_file, sheet_name="Escalation_Matrix")
+    login_credentials = pd.read_excel(excel_file, sheet_name="Login_Credentials")
 
     return {
         "orders": orders_master,
@@ -31,6 +32,7 @@ def load_data():
         "dictionary": task_dictionary,
         "holds": hold_reasons,
         "escalations": escalation_matrix
+        "login": login_credentials 
     }
 
 data = load_data()
