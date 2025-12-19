@@ -343,14 +343,6 @@ def program_manager_page():
             on_click=clear_program_filters
         )
 
-
-    if clear_filters:
-        st.session_state["rag_filter"] = []
-        st.session_state["sla_filter"] = []
-        st.session_state["lifecycle_filter"] = []
-        st.rerun()
-
-
     filtered_orders = orders_df.copy()
 
     if apply_filters:
