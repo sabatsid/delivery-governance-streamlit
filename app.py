@@ -199,9 +199,9 @@ if st.session_state.get("logged_in"):
 # -------------------------
 def program_manager_page():
    # for reset
-    for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
-        if key not in st.session_state:
-        st.session_state[key] = []
+for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
+    if key not in st.session_state:
+    st.session_state[key] = []
     # for reset
     
     st.title("🧭 Program Master View")
