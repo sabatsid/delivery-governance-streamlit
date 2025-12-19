@@ -88,7 +88,8 @@ def landing_page():
                 st.session_state.user_profile = {
                     "POC_Name": "Demo Program Manager"
                 }
-
+                st.rerun()
+                
         with col2:
             if st.button("🛠 Operations Team"):
                 st.session_state.persona = "Operations"
@@ -97,7 +98,8 @@ def landing_page():
                     "POC_Name": "Demo Operations User",
                     "Team_Name": "OPS_L2O"
                 }
-
+                st.rerun()
+                
         with col3:
             if st.button("📊 Leadership"):
                 st.session_state.persona = "Leader"
@@ -105,7 +107,8 @@ def landing_page():
                 st.session_state.user_profile = {
                     "POC_Name": "Demo Leadership"
                 }
-
+                st.rerun()
+                
         with col4:
             if st.button("👤 Customer"):
                 st.session_state.persona = "Customer"
@@ -114,7 +117,8 @@ def landing_page():
                     "POC_Name": "Demo Customer",
                     "Order_ID": data["orders"]["Order_ID"].iloc[0]
                 }
-
+                st.rerun()
+                
         st.caption("⚡ One-click access for presentations")
 
     else:
