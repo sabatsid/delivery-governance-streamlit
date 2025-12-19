@@ -217,7 +217,7 @@ def program_manager_page():
     st.subheader("🔎 Focus on a Specific Order")
     
     # 🔹 IMPORTANT: adjust this column name if needed
-    CUSTOMER_COL = "Customer_Name"  # change if your sheet uses a different name
+    CUSTOMER_COL = "Client_Name"  # change if your sheet uses a different name
     
     order_options = (
         orders_df["Order_ID"] + " | " + orders_df[CUSTOMER_COL]
