@@ -418,50 +418,6 @@ def operations_page():
     st.title("🛠 Operations Task Inbox")
     st.caption("Prioritised task execution with escalation visibility")
 
-    # -------------------------
-# CUSTOMER TICKETS (OPS VIEW)
-# -------------------------
-tickets_df = pd.DataFrame(
-    st.session_state.get("customer_tickets", [])
-)
-
-# Logged-in ops team
-# Logged-in ops team (safe access)
-user_profile = st.session_state.get("user_profile")
-
-if not isinstance(user_profile, dict):
-    user_profile = {}
-
-ops_team = user_profile.get("Team_Name")
-
-
-if not tickets_df.empty:
-    ops_tickets = tickets_df[
-        tickets_df["Assigned_Team"] == ops_team
-    ]
-else:
-    ops_tickets = pd.DataFrame()
-
-# 🔔 Notification Bell
-ticket_count = len(ops_tickets)
-
-col1, col2 = st.columns([1, 6])
-
-with col1:
-    if ticket_count > 0:
-        st.markdown(
-            f"<h2 style='color:red'>🔔 {ticket_count}</h2>",
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown("<h2>🔔</h2>", unsafe_allow_html=True)
-
-with col2:
-    if ticket_count > 0:
-        st.error(f"{ticket_count} customer ticket(s) require attention")
-    else:
-        st.caption("No new customer tickets")
-
     tasks_df = data["tasks"].copy()
 
     # Prepare dates
