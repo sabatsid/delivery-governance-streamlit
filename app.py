@@ -497,24 +497,7 @@ def operations_page():
     # -------------------------
     # INBOX TABLE
     # -------------------------
-    st.subheader("My Task Inbox")
-
-
-    # -------------------------
-# CUSTOMER RAISED TICKETS
-# -------------------------
-if not ops_tickets.empty:
-    st.divider()
-    st.subheader("📩 Customer Raised Tickets")
-
-    st.dataframe(
-        ops_tickets[
-            ["Order_ID", "Lifecycle_Stage", "Issue", "Timestamp"]
-        ],
-        use_container_width=True
-    )
-
-    
+    st.subheader("My Task Inbox")  
 
     def highlight_escalation(row):
         if row["Is_Escalated"] == "Yes":
