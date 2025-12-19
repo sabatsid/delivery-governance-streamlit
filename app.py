@@ -303,25 +303,40 @@ def program_manager_page():
     with col1:
         rag_filter = st.multiselect(
             "RAG Status",
-            options=sorted(orders_df["Overall_RAG"].dropna().unique())
+            options=sorted(orders_df["Overall_RAG"].dropna().unique()),
+            key="rag_filter"
         )
     
     with col2:
         sla_filter = st.multiselect(
             "SLA Breach",
-            options=["Yes", "No"]
+            options=["Yes", "No"],
+            key="sla_filter"
         )
     
     with col3:
         lifecycle_filter = st.multiselect(
             "Lifecycle Stage",
-            options=sorted(orders_df["Lifecycle_Stage"].dropna().unique())
+            options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
+            key="lifecycle_filter"
         )
     
-    apply_filters = st.button("🔍 Apply Filters")
+    btn_col1, btn_col2 = st.columns([1, 1])
     
+    with btn_col1:
+        apply_filters = st.button("🔍 Apply Filters")
+    
+    with btn_col2:
+        clear_filters = st.button("🧹 Clear Filters")
+
+    if clear_filters:
+    st.session_state.pop("rag_filter", None)
+    st.session_state.pop("sla_filter", None)
+    st.session_state.pop("lifecycle_filter", None)
+    st.rerun()
+
     filtered_orders = orders_df.copy()
-    
+
     if apply_filters:
     
         if rag_filter:
@@ -338,7 +353,7 @@ def program_manager_page():
             filtered_orders = filtered_orders[
                 filtered_orders["Lifecycle_Stage"].isin(lifecycle_filter)
             ]
-    
+
     st.divider()
     st.subheader("📋 Filtered Orders")
     
