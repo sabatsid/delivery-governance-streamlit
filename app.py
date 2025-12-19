@@ -258,31 +258,38 @@ def program_manager_page():
         col2.metric("SLA Breach", order["SLA_Breach_Flag"])
         col3.metric("Order Ageing (Days)", order["Order_Ageing_Days"])
 
-        # -------------------------
-        # DEEP DIVE
-        # -------------------------
-        if st.button("🔍 Deep Dive into Task Execution"):
-            st.divider()
-            st.subheader("🛠 Task Execution Details")
+    # -------------------------
+    # DEEP DIVE
+    # -------------------------
+    if st.button("🔍 Deep Dive into Task Execution"):
+        st.divider()
+        st.subheader("🛠 Task Execution Details")
+    
+        order_tasks = tasks_df[
+            tasks_df["Order_ID"] == selected_order
+        ].sort_values("Task_Start_Date", errors="ignore")
+    
+        # Columns we WANT to show (if they exist)
+        desired_columns = [
+            "Task_ID",
+            "Task_Name",
+            "Task_Status",
+            "Assigned_To",
+            "Task_Start_Date",
+            "Actual_Hours",
+            "Hold_Reason_Code"
+        ]
+    
+        # Keep only columns that actually exist
+        available_columns = [
+            col for col in desired_columns if col in order_tasks.columns
+        ]
+    
+        st.dataframe(
+            order_tasks[available_columns],
+            use_container_width=True
+        )
 
-            order_tasks = tasks_df[
-                tasks_df["Order_ID"] == selected_order
-            ].sort_values("Task_Start_Date")
-
-            st.dataframe(
-                order_tasks[
-                    [
-                        "Task_ID",
-                        "Task_Name",
-                        "Task_Status",
-                        "Assigned_To",
-                        "Task_Start_Date",
-                        "Actual_Hours",
-                        "Hold_Reason_Code"
-                    ]
-                ],
-                use_container_width=True
-            )
 
     # -------------------------
     # PORTFOLIO FILTERS
