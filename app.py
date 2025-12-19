@@ -256,9 +256,9 @@ def program_manager_page():
         k3.metric("🟠 At-Risk Orders", at_risk_orders)
         k4.metric("⏱ Avg Ageing (Days)", avg_ageing)
         
-                st.caption("Portfolio-wide visibility with focused order-level deep dives")
+        st.caption("Portfolio-wide visibility with focused order-level deep dives")
         
-                st.divider()
+        st.divider()
 
         # -------------------------
         # ORDER SELECTION
