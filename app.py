@@ -198,6 +198,12 @@ if st.session_state.get("logged_in"):
 # PROGRAM MANAGER PAGE
 # -------------------------
 def program_manager_page():
+   # for reset
+    for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
+    if key not in st.session_state:
+        st.session_state[key] = []
+    # for reset
+    
     st.title("🧭 Program Master View")
     st.caption("Portfolio-level visibility with focused order deep dives")
 
@@ -320,6 +326,7 @@ def program_manager_page():
             options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
             key="lifecycle_filter"
         )
+
     
     btn_col1, btn_col2 = st.columns([1, 1])
     
@@ -329,11 +336,12 @@ def program_manager_page():
     with btn_col2:
         clear_filters = st.button("🧹 Clear Filters")
 
-        if clear_filters:
-            st.session_state.pop("rag_filter", None)
-            st.session_state.pop("sla_filter", None)
-            st.session_state.pop("lifecycle_filter", None)
-            st.rerun()
+    if clear_filters:
+        st.session_state["rag_filter"] = []
+        st.session_state["sla_filter"] = []
+        st.session_state["lifecycle_filter"] = []
+        st.rerun()
+
 
     filtered_orders = orders_df.copy()
 
