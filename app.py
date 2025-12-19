@@ -197,14 +197,18 @@ if st.session_state.get("logged_in"):
 # -------------------------
 # PROGRAM MANAGER PAGE
 # -------------------------
-def program_manager_page():
+def clear_program_filters():
+    st.session_state.rag_filter = []
+    st.session_state.sla_filter = []
+    st.session_state.lifecycle_filter = []
+
    # for reset
     for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
         if key not in st.session_state:
             st.session_state[key] = []
 
     # for reset
-    
+def program_manager_page():
     st.title("🧭 Program Master View")
     st.caption("Portfolio-level visibility with focused order deep dives")
 
@@ -306,36 +310,39 @@ def program_manager_page():
     st.subheader("📊 Portfolio Filters")
     
     col1, col2, col3 = st.columns(3)
-    
+        
     with col1:
-        rag_filter = st.multiselect(
+        st.multiselect(
             "RAG Status",
             options=sorted(orders_df["Overall_RAG"].dropna().unique()),
             key="rag_filter"
         )
     
     with col2:
-        sla_filter = st.multiselect(
+        st.multiselect(
             "SLA Breach",
             options=["Yes", "No"],
             key="sla_filter"
         )
     
     with col3:
-        lifecycle_filter = st.multiselect(
+        st.multiselect(
             "Lifecycle Stage",
             options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
             key="lifecycle_filter"
         )
 
+    col_apply, col_clear = st.columns([1, 1])
     
-    btn_col1, btn_col2 = st.columns([1, 1])
+    with col_apply:
+        apply_filters = st.button("✅ Apply Filters")
     
-    with btn_col1:
-        apply_filters = st.button("🔍 Apply Filters")
-    
-    with btn_col2:
-        clear_filters = st.button("🧹 Clear Filters")
+    with col_clear:
+        st.button(
+            "🧹 Clear Filters",
+            on_click=clear_program_filters
+        )
+
 
     if clear_filters:
         st.session_state["rag_filter"] = []
@@ -347,21 +354,23 @@ def program_manager_page():
     filtered_orders = orders_df.copy()
 
     if apply_filters:
-    
-        if rag_filter:
+        if st.session_state.rag_filter:
             filtered_orders = filtered_orders[
-                filtered_orders["Overall_RAG"].isin(rag_filter)
+                filtered_orders["Overall_RAG"].isin(st.session_state.rag_filter)
             ]
     
-        if sla_filter:
+        if st.session_state.sla_filter:
             filtered_orders = filtered_orders[
-                filtered_orders["SLA_Breach_Flag"].isin(sla_filter)
+                filtered_orders["SLA_Breach_Flag"].isin(st.session_state.sla_filter)
             ]
     
-        if lifecycle_filter:
+        if st.session_state.lifecycle_filter:
             filtered_orders = filtered_orders[
-                filtered_orders["Lifecycle_Stage"].isin(lifecycle_filter)
+                filtered_orders["Lifecycle_Stage"].isin(
+                    st.session_state.lifecycle_filter
+                )
             ]
+
 
     st.divider()
     st.subheader("📋 Filtered Orders")
