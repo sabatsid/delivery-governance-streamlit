@@ -435,99 +435,99 @@ def operations_page():
     # -------------------------
     # TAB 1: MY TASK INBOX
     # -------------------------
-with tab1:
-    st.subheader("📋 My Active Tasks")
-    st.caption("Tasks currently in progress and assigned to you")
-
-    user = st.session_state.user_profile.get("POC_Name")
-
-    tasks_df = data["tasks"].copy()
-    dict_df = data["dictionary"].copy()
-
-    # -------------------------
-    # FILTER IN-PROGRESS TASKS
-    # -------------------------
-    my_active_tasks = tasks_df[
-        (tasks_df["Assigned_To"] == user) &
-        (tasks_df["Task_Status"] == "In Progress")
-    ]
-
-    if my_active_tasks.empty:
-        st.success("🎉 You have no tasks currently in progress.")
-    else:
-        for _, current_task in my_active_tasks.iterrows():
-
-            order_id = current_task["Order_ID"]
-            lifecycle = current_task["Lifecycle_Stage"]
-            task_id = current_task["Task_ID"]
-
-            st.divider()
-            st.markdown(
-                f"### 📦 Order `{order_id}` — {lifecycle}"
-            )
-
-            col1, col2 = st.columns(2)
-
-            # -------------------------
-            # CURRENT TASK
-            # -------------------------
-            with col1:
-                st.markdown("**🔴 Current Task (In Progress)**")
-                st.write(f"**Task ID:** {task_id}")
-                st.write(f"**Task Name:** {current_task['Task_Name']}")
-                st.write(f"**Started On:** {current_task['Task_Start_Date']}")
-
-            # -------------------------
-            # NEXT TASK (FROM DICTIONARY)
-            # -------------------------
-            with col2:
-                st.markdown("**➡️ Next Task (Upcoming)**")
-
-                lifecycle_tasks = dict_df[
-                    dict_df["Lifecycle_Stage"] == lifecycle
-                ].sort_values("Task_ID")
-
-                task_sequence = lifecycle_tasks["Task_ID"].tolist()
-
-                if task_id in task_sequence:
-                    current_index = task_sequence.index(task_id)
-
-                    if current_index + 1 < len(task_sequence):
-                        next_task = lifecycle_tasks.iloc[current_index + 1]
-                        st.write(f"**Task ID:** {next_task['Task_ID']}")
-                        st.write(f"**Task Name:** {next_task['Task_Name']}")
+    with tab1:
+        st.subheader("📋 My Active Tasks")
+        st.caption("Tasks currently in progress and assigned to you")
+    
+        user = st.session_state.user_profile.get("POC_Name")
+    
+        tasks_df = data["tasks"].copy()
+        dict_df = data["dictionary"].copy()
+    
+        # -------------------------
+        # FILTER IN-PROGRESS TASKS
+        # -------------------------
+        my_active_tasks = tasks_df[
+            (tasks_df["Assigned_To"] == user) &
+            (tasks_df["Task_Status"] == "In Progress")
+        ]
+    
+        if my_active_tasks.empty:
+            st.success("🎉 You have no tasks currently in progress.")
+        else:
+            for _, current_task in my_active_tasks.iterrows():
+    
+                order_id = current_task["Order_ID"]
+                lifecycle = current_task["Lifecycle_Stage"]
+                task_id = current_task["Task_ID"]
+    
+                st.divider()
+                st.markdown(
+                    f"### 📦 Order `{order_id}` — {lifecycle}"
+                )
+    
+                col1, col2 = st.columns(2)
+    
+                # -------------------------
+                # CURRENT TASK
+                # -------------------------
+                with col1:
+                    st.markdown("**🔴 Current Task (In Progress)**")
+                    st.write(f"**Task ID:** {task_id}")
+                    st.write(f"**Task Name:** {current_task['Task_Name']}")
+                    st.write(f"**Started On:** {current_task['Task_Start_Date']}")
+    
+                # -------------------------
+                # NEXT TASK (FROM DICTIONARY)
+                # -------------------------
+                with col2:
+                    st.markdown("**➡️ Next Task (Upcoming)**")
+    
+                    lifecycle_tasks = dict_df[
+                        dict_df["Lifecycle_Stage"] == lifecycle
+                    ].sort_values("Task_ID")
+    
+                    task_sequence = lifecycle_tasks["Task_ID"].tolist()
+    
+                    if task_id in task_sequence:
+                        current_index = task_sequence.index(task_id)
+    
+                        if current_index + 1 < len(task_sequence):
+                            next_task = lifecycle_tasks.iloc[current_index + 1]
+                            st.write(f"**Task ID:** {next_task['Task_ID']}")
+                            st.write(f"**Task Name:** {next_task['Task_Name']}")
+                        else:
+                            st.write("🎯 This is the final task in this lifecycle.")
                     else:
-                        st.write("🎯 This is the final task in this lifecycle.")
-                else:
-                    st.write("Next task not found in dictionary.")
-
-            # -------------------------
-            # COMPLETED TASKS (JOURNEY SO FAR)
-            # -------------------------
-            with st.expander("📜 View journey so far (completed tasks)"):
-                completed_tasks = tasks_df[
-                    (tasks_df["Order_ID"] == order_id) &
-                    (tasks_df["Task_Status"] == "Completed")
-                ]
-
-                if completed_tasks.empty:
-                    st.info("No completed tasks yet.")
-                else:
-                    display_cols = [
-                        "Task_ID",
-                        "Task_Name",
-                        "Assigned_To",
-                        "Task_End_Date"
+                        st.write("Next task not found in dictionary.")
+    
+                # -------------------------
+                # COMPLETED TASKS (JOURNEY SO FAR)
+                # -------------------------
+                with st.expander("📜 View journey so far (completed tasks)"):
+                    completed_tasks = tasks_df[
+                        (tasks_df["Order_ID"] == order_id) &
+                        (tasks_df["Task_Status"] == "Completed")
                     ]
-                    display_cols = [
-                        c for c in display_cols
-                        if c in completed_tasks.columns
-                    ]
-
-                    st.dataframe(
-                        completed_tasks[display_cols],
-                        use_container_width=True
-                    )
+    
+                    if completed_tasks.empty:
+                        st.info("No completed tasks yet.")
+                    else:
+                        display_cols = [
+                            "Task_ID",
+                            "Task_Name",
+                            "Assigned_To",
+                            "Task_End_Date"
+                        ]
+                        display_cols = [
+                            c for c in display_cols
+                            if c in completed_tasks.columns
+                        ]
+    
+                        st.dataframe(
+                            completed_tasks[display_cols],
+                            use_container_width=True
+                        )
     
     # -------------------------
     # TAB 2: CUSTOMER TICKETS
