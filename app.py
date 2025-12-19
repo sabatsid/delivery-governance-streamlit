@@ -31,7 +31,7 @@ def load_data():
         "tasks": order_task_execution,
         "dictionary": task_dictionary,
         "holds": hold_reasons,
-        "escalations": escalation_matrix
+        "escalations": escalation_matrix,
         "login": login_credentials 
     }
 
