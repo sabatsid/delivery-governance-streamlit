@@ -206,12 +206,11 @@ def clear_program_filters():
     for key in ["rag_filter", "sla_filter", "lifecycle_filter"]:
         if key not in st.session_state:
             st.session_state[key] = []
-
     # for reset
-def program_manager_page():
-    st.title("🧭 Program Master View")
-    st.caption("Portfolio-level visibility with focused order deep dives")
 
+def program_manager_page():
+    st.title("🧭 Program Manager")
+    st.caption("End-to-end portfolio oversight and program governance")
     orders_df = data["orders"].copy()
     tasks_df = data["tasks"].copy()
 
@@ -221,6 +220,23 @@ def program_manager_page():
     ).dt.days
 
     st.divider()
+    # -------------------------
+    # TOP TABS
+    # -------------------------
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 Program Master View",
+        "📁 Individual Program View",
+        "🚨 Escalations",
+        "👥 Resource Allocation"
+    ])
+
+    # ======================================================
+    # TAB 1 — PROGRAM MASTER VIEW
+    # ======================================================
+    with tab1:
+        st.subheader("📊 Program Master View")
+        st.caption("Portfolio-wide visibility with focused order-level deep dives")
+
 
     # -------------------------
     # ORDER SELECTION
@@ -306,88 +322,122 @@ def program_manager_page():
     # -------------------------
     # PORTFOLIO FILTERS
     # -------------------------
-    st.divider()
-    st.subheader("📊 Portfolio Filters")
-    
-    col1, col2, col3 = st.columns(3)
+        st.divider()
+        st.subheader("📊 Portfolio Filters")
         
-    with col1:
-        st.multiselect(
-            "RAG Status",
-            options=sorted(orders_df["Overall_RAG"].dropna().unique()),
-            key="rag_filter"
-        )
-    
-    with col2:
-        st.multiselect(
-            "SLA Breach",
-            options=["Yes", "No"],
-            key="sla_filter"
-        )
-    
-    with col3:
-        st.multiselect(
-            "Lifecycle Stage",
-            options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
-            key="lifecycle_filter"
-        )
-
-    col_apply, col_clear = st.columns([1, 1])
-    
-    with col_apply:
-        apply_filters = st.button("✅ Apply Filters")
-    
-    with col_clear:
-        st.button(
-            "🧹 Clear Filters",
-            on_click=clear_program_filters
-        )
-
-    filtered_orders = orders_df.copy()
-
-    if apply_filters:
-        if st.session_state.rag_filter:
-            filtered_orders = filtered_orders[
-                filtered_orders["Overall_RAG"].isin(st.session_state.rag_filter)
-            ]
-    
-        if st.session_state.sla_filter:
-            filtered_orders = filtered_orders[
-                filtered_orders["SLA_Breach_Flag"].isin(st.session_state.sla_filter)
-            ]
-    
-        if st.session_state.lifecycle_filter:
-            filtered_orders = filtered_orders[
-                filtered_orders["Lifecycle_Stage"].isin(
-                    st.session_state.lifecycle_filter
-                )
-            ]
-
-
-    st.divider()
-    st.subheader("📋 Filtered Orders")
-    
-    if apply_filters:
-        if filtered_orders.empty:
-            st.warning("No orders match the selected filters.")
-        else:
-            display_cols = [
-                "Order_ID",
-                "Client_Name",
-                "Lifecycle_Stage",
-                "Order_Type",
-                "Overall_RAG",
-                "SLA_Breach_Flag",
-                "Order_Ageing_Days"
-            ]
-            display_cols = [c for c in display_cols if c in filtered_orders.columns]
-    
-            st.dataframe(
-                filtered_orders[display_cols],
-                use_container_width=True
+        col1, col2, col3 = st.columns(3)
+            
+        with col1:
+            st.multiselect(
+                "RAG Status",
+                options=sorted(orders_df["Overall_RAG"].dropna().unique()),
+                key="rag_filter"
             )
-    else:
-        st.info("Select filters and click **Apply Filters** to view results.")
+        
+        with col2:
+            st.multiselect(
+                "SLA Breach",
+                options=["Yes", "No"],
+                key="sla_filter"
+            )
+        
+        with col3:
+            st.multiselect(
+                "Lifecycle Stage",
+                options=sorted(orders_df["Lifecycle_Stage"].dropna().unique()),
+                key="lifecycle_filter"
+            )
+    
+        col_apply, col_clear = st.columns([1, 1])
+        
+        with col_apply:
+            apply_filters = st.button("✅ Apply Filters")
+        
+        with col_clear:
+            st.button(
+                "🧹 Clear Filters",
+                on_click=clear_program_filters
+            )
+    
+        filtered_orders = orders_df.copy()
+    
+        if apply_filters:
+            if st.session_state.rag_filter:
+                filtered_orders = filtered_orders[
+                    filtered_orders["Overall_RAG"].isin(st.session_state.rag_filter)
+                ]
+        
+            if st.session_state.sla_filter:
+                filtered_orders = filtered_orders[
+                    filtered_orders["SLA_Breach_Flag"].isin(st.session_state.sla_filter)
+                ]
+        
+            if st.session_state.lifecycle_filter:
+                filtered_orders = filtered_orders[
+                    filtered_orders["Lifecycle_Stage"].isin(
+                        st.session_state.lifecycle_filter
+                    )
+                ]
+    
+    
+        st.divider()
+        st.subheader("📋 Filtered Orders")
+        
+        if apply_filters:
+            if filtered_orders.empty:
+                st.warning("No orders match the selected filters.")
+            else:
+                display_cols = [
+                    "Order_ID",
+                    "Client_Name",
+                    "Lifecycle_Stage",
+                    "Order_Type",
+                    "Overall_RAG",
+                    "SLA_Breach_Flag",
+                    "Order_Ageing_Days"
+                ]
+                display_cols = [c for c in display_cols if c in filtered_orders.columns]
+        
+                st.dataframe(
+                    filtered_orders[display_cols],
+                    use_container_width=True
+                )
+        else:
+            st.info("Select filters and click **Apply Filters** to view results.")
+    
+    
+        # ======================================================
+        # TAB 2 — INDIVIDUAL PROGRAM VIEW (PLACEHOLDER)
+        # ======================================================
+        with tab2:
+            st.subheader("📁 Individual Program View")
+            st.info(
+                "This view will show only orders mapped to the current Program Manager "
+                "based on lifecycle ownership and operations team alignment."
+            )
+            st.caption("🚧 Coming soon")
+    
+        # ======================================================
+        # TAB 3 — ESCALATIONS (PLACEHOLDER)
+        # ======================================================
+        with tab3:
+            st.subheader("🚨 Escalations")
+            st.info(
+                "This section will provide a consolidated view of all escalations raised, "
+                "their status, ageing, and resolution ownership."
+            )
+            st.caption("🚧 Coming soon")
+    
+        # ======================================================
+        # TAB 4 — RESOURCE ALLOCATION (PLACEHOLDER)
+        # ======================================================
+        with tab4:
+            st.subheader("👥 Resource Allocation")
+            st.info(
+                "This view will help track which operations resources are working on which "
+                "orders, workload distribution, and availability."
+            )
+            st.caption("🚧 Coming soon")
 
 
 # -------------------------
