@@ -329,11 +329,11 @@ def program_manager_page():
     with btn_col2:
         clear_filters = st.button("🧹 Clear Filters")
 
-    if clear_filters:
-    st.session_state.pop("rag_filter", None)
-    st.session_state.pop("sla_filter", None)
-    st.session_state.pop("lifecycle_filter", None)
-    st.rerun()
+        if clear_filters:
+        st.session_state.pop("rag_filter", None)
+        st.session_state.pop("sla_filter", None)
+        st.session_state.pop("lifecycle_filter", None)
+        st.rerun()
 
     filtered_orders = orders_df.copy()
 
