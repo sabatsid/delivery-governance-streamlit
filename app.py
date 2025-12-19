@@ -267,9 +267,11 @@ def program_manager_page():
     
         order_tasks = tasks_df[
             tasks_df["Order_ID"] == selected_order
-        ].sort_values("Task_Start_Date", errors="ignore")
+        ]
     
-        # Columns we WANT to show (if they exist)
+        if "Task_Start_Date" in order_tasks.columns:
+            order_tasks = order_tasks.sort_values("Task_Start_Date")
+    
         desired_columns = [
             "Task_ID",
             "Task_Name",
@@ -280,7 +282,6 @@ def program_manager_page():
             "Hold_Reason_Code"
         ]
     
-        # Keep only columns that actually exist
         available_columns = [
             col for col in desired_columns if col in order_tasks.columns
         ]
