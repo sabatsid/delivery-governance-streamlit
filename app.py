@@ -69,7 +69,7 @@ def landing_page():
     # Mode toggle
     st.radio(
         "Select access mode",
-        ["Demo Mode", "Secure Login"],
+        ["Demo", "Secure Login"],
         horizontal=True,
         key="app_mode"
     )
