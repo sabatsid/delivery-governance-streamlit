@@ -435,118 +435,114 @@ def operations_page():
     # -------------------------
     # TAB 1: MY TASK INBOX
     # -------------------------
-with tab1:
-    st.subheader("📋 My Task Inbox")
-    st.caption("Tasks currently assigned to you")
-
-    # -------------------------
-    # IDENTIFY LOGGED-IN USER
-    # -------------------------
-    user_profile = st.session_state.user_profile
-    logged_in_user = user_profile.get("POC_Name")
-
-    st.markdown(f"**👤 Logged in as:** {logged_in_user}")
-
-    tasks_df = data["tasks"].copy()
-
-    # -------------------------
-    # FILTER TASKS FOR THIS USER
-    # -------------------------
-    my_tasks = tasks_df[
-        tasks_df["Assigned_To"] == logged_in_user
-    ].copy()
-
-    if my_tasks.empty:
-        st.success("🎉 No pending tasks assigned to you.")
-    else:
-        # Group by Order
-        for order_id in my_tasks["Order_ID"].unique():
-
-            st.divider()
-
-            order_tasks = tasks_df[
-                tasks_df["Order_ID"] == order_id
-            ].sort_values("Task_Start_Date", errors="ignore")
-
-            pending_tasks = order_tasks[
-                order_tasks["Task_Status"].isin(["Pending", "In Progress"])
-            ]
-
-            completed_tasks = order_tasks[
-                order_tasks["Task_Status"] == "Completed"
-            ]
-
-            if pending_tasks.empty:
-                continue
-
-            current_task = pending_tasks.iloc[0]
-
-            next_task = None
-            if len(pending_tasks) > 1:
-                next_task = pending_tasks.iloc[1]
-
-            # -------------------------
-            # ORDER HEADER
-            # -------------------------
-            st.markdown(
-                f"### 📦 Order: `{order_id}` | {current_task['Lifecycle_Stage']}"
-            )
-
-            col1, col2 = st.columns(2)
-
-            # -------------------------
-            # CURRENT TASK
-            # -------------------------
-            with col1:
-                st.markdown("**🔴 Current Pending Task**")
-                st.write(f"**Task:** {current_task['Task_Name']}")
-                st.write(f"**Status:** {current_task['Task_Status']}")
-
-                if "Planned_End_Date" in current_task:
-                    st.write(
-                        f"**Due by:** {current_task['Planned_End_Date']}"
-                    )
-
-            # -------------------------
-            # NEXT TASK
-            # -------------------------
-            with col2:
-                st.markdown("**➡️ Next Task (Upcoming)**")
-                if next_task is not None:
-                    st.write(f"**Task:** {next_task['Task_Name']}")
-                    st.write(
-                        f"**Owner:** {next_task['Assigned_To']}"
-                    )
-                else:
-                    st.write("No further tasks in this order")
-
-            # -------------------------
-            # COMPLETED TASKS (COLLAPSIBLE)
-            # -------------------------
-            with st.expander("✅ View completed tasks for this order"):
-                if completed_tasks.empty:
-                    st.info("No completed tasks yet.")
-                else:
-                    display_cols = [
-                        "Task_ID",
-                        "Task_Name",
-                        "Assigned_To",
-                        "Task_End_Date"
-                    ]
-                    display_cols = [
-                        c for c in display_cols
-                        if c in completed_tasks.columns
-                    ]
-
-                    st.dataframe(
-                        completed_tasks[display_cols],
-                        use_container_width=True
-                    )
-
-
-        # 👉 KEEP YOUR EXISTING TASK INBOX CODE HERE
-        # (no change for now)
-
+    with tab1:
+        st.subheader("📋 My Task Inbox")
+        st.caption("Tasks currently assigned to you")
+    
+        # -------------------------
+        # IDENTIFY LOGGED-IN USER
+        # -------------------------
+        user_profile = st.session_state.user_profile
+        logged_in_user = user_profile.get("POC_Name")
+    
+        st.markdown(f"**👤 Logged in as:** {logged_in_user}")
+    
+        tasks_df = data["tasks"].copy()
+    
+        # -------------------------
+        # FILTER TASKS FOR THIS USER
+        # -------------------------
+        my_tasks = tasks_df[
+            tasks_df["Assigned_To"] == logged_in_user
+        ].copy()
+    
+        if my_tasks.empty:
+            st.success("🎉 No pending tasks assigned to you.")
+        else:
+            # Group by Order
+            for order_id in my_tasks["Order_ID"].unique():
+    
+                st.divider()
+    
+                order_tasks = tasks_df[
+                    tasks_df["Order_ID"] == order_id
+                ].sort_values("Task_Start_Date", errors="ignore")
+    
+                pending_tasks = order_tasks[
+                    order_tasks["Task_Status"].isin(["Pending", "In Progress"])
+                ]
+    
+                completed_tasks = order_tasks[
+                    order_tasks["Task_Status"] == "Completed"
+                ]
+    
+                if pending_tasks.empty:
+                    continue
+    
+                current_task = pending_tasks.iloc[0]
+    
+                next_task = None
+                if len(pending_tasks) > 1:
+                    next_task = pending_tasks.iloc[1]
+    
+                # -------------------------
+                # ORDER HEADER
+                # -------------------------
+                st.markdown(
+                    f"### 📦 Order: `{order_id}` | {current_task['Lifecycle_Stage']}"
+                )
+    
+                col1, col2 = st.columns(2)
+    
+                # -------------------------
+                # CURRENT TASK
+                # -------------------------
+                with col1:
+                    st.markdown("**🔴 Current Pending Task**")
+                    st.write(f"**Task:** {current_task['Task_Name']}")
+                    st.write(f"**Status:** {current_task['Task_Status']}")
+    
+                    if "Planned_End_Date" in current_task:
+                        st.write(
+                            f"**Due by:** {current_task['Planned_End_Date']}"
+                        )
+    
+                # -------------------------
+                # NEXT TASK
+                # -------------------------
+                with col2:
+                    st.markdown("**➡️ Next Task (Upcoming)**")
+                    if next_task is not None:
+                        st.write(f"**Task:** {next_task['Task_Name']}")
+                        st.write(
+                            f"**Owner:** {next_task['Assigned_To']}"
+                        )
+                    else:
+                        st.write("No further tasks in this order")
+    
+                # -------------------------
+                # COMPLETED TASKS (COLLAPSIBLE)
+                # -------------------------
+                with st.expander("✅ View completed tasks for this order"):
+                    if completed_tasks.empty:
+                        st.info("No completed tasks yet.")
+                    else:
+                        display_cols = [
+                            "Task_ID",
+                            "Task_Name",
+                            "Assigned_To",
+                            "Task_End_Date"
+                        ]
+                        display_cols = [
+                            c for c in display_cols
+                            if c in completed_tasks.columns
+                        ]
+    
+                        st.dataframe(
+                            completed_tasks[display_cols],
+                            use_container_width=True
+                        )
+    
     # -------------------------
     # TAB 2: CUSTOMER TICKETS
     # -------------------------
