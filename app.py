@@ -334,7 +334,7 @@ def program_manager_page():
         filtered_orders[
             [
                 "Order_ID",
-                "Customer_Name",
+                "Client_Name",
                 "Lifecycle_Stage",
                 "Order_Type",
                 "Overall_RAG",
