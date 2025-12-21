@@ -460,9 +460,7 @@ def operations_page():
             .str.strip()
             .str.lower()
         )
-    
-        user_clean = str(user).strip().lower()
-    
+ 
         # -------------------------
         # ALWAYS DEFINE THIS
         # -------------------------
