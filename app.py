@@ -458,25 +458,25 @@ def operations_page():
     # -------------------------
     # NORMALISE DATA
     # -------------------------
-    tasks_df["assigned_clean"] = (
-        tasks_df["Assigned_To_POC"]
-        .astype(str)
-        .str.strip()
-        .str.lower()
-    )
-    
-    tasks_df["status_clean"] = (
-        tasks_df["Task_Status"]
-        .astype(str)
-        .str.strip()
-        .str.lower()
-    )
-    
-    user_clean = (
-        str(user)
-        .strip()
-        .lower()
-    )
+        tasks_df["assigned_clean"] = (
+            tasks_df["Assigned_To_POC"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+        
+        tasks_df["status_clean"] = (
+            tasks_df["Task_Status"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+        
+        user_clean = (
+            str(user)
+            .strip()
+            .lower()
+        )
     
         if my_active_tasks.empty:
             st.success("🎉 You have no tasks currently in progress.")
