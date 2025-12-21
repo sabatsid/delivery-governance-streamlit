@@ -474,7 +474,7 @@ def operations_page():
         # -------------------------
         my_active_tasks = tasks_df[
             (tasks_df["__assigned_clean"] == user_clean) &
-            (tasks_df["__status_clean"] == "in progress")
+            (tasks_df["__status_clean"] == "In Progress")
         ]
     
         if my_active_tasks.empty:
