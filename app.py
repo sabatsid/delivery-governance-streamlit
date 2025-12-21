@@ -435,74 +435,67 @@ def operations_page():
     # -------------------------
     # TAB 1: MY TASK INBOX
     # -------------------------
-    with tab1:
-        st.subheader("📋 My Active Tasks")
-    
-        user = st.session_state.user_profile.get("POC_Name")
-        st.info(f"🔍 Logged in user: {user}")
-    
-        tasks_df = data["tasks"].copy()
-    
-        st.markdown("### 🔎 Sample task assignments (debug)")
-        st.dataframe(
-            tasks_df[[
-                "Order_ID",
-                "Task_ID",
-                "Assigned_To_POC",
-                "Assigned_To_Team",
-                "Task_Status"
-            ]].head(10),
-            use_container_width=True
-        )
+with tab1:
+    st.subheader("📋 My Active Tasks")
+    st.caption("Tasks currently in progress and assigned to you")
+
+    user = st.session_state.user_profile.get("POC_Name")
+
+    tasks_df = data["tasks"].copy()
+    dict_df = data["dictionary"].copy()
 
     # -------------------------
-    # NORMALISE DATA
+    # NORMALISE DATA (VERY IMPORTANT)
     # -------------------------
-        tasks_df["assigned_clean"] = (
-            tasks_df["Assigned_To_POC"]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-        )
-        
-        tasks_df["status_clean"] = (
-            tasks_df["Task_Status"]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-        )
-        
-        user_clean = (
-            str(user)
-            .strip()
-            .lower()
-        )
-    
-        if my_active_tasks.empty:
-            st.success("🎉 You have no tasks currently in progress.")
-        else:
-            for _, current_task in my_active_tasks.iterrows():
-    
-                order_id = current_task["Order_ID"]
-                lifecycle = current_task["Lifecycle_Stage"]
-    
-                st.divider()
-                st.markdown(
-                    f"### 📦 Order `{order_id}` — {lifecycle}"
-                )
-    
-                col1, col2 = st.columns(2)
-    
-                # -------------------------
-                # CURRENT TASK
-                # -------------------------
-                with col1:
-                    st.markdown("**🔴 Current Task (In Progress)**")
-                    st.write(f"**Task ID:** {current_task['Task_ID']}")
-                    st.write(f"**Task Name:** {current_task['Task_Name']}")
-                    st.write(f"**Started On:** {current_task['Task_Start_Date']}")
+    tasks_df["assigned_clean"] = (
+        tasks_df["Assigned_To_POC"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
 
-    
+    tasks_df["status_clean"] = (
+        tasks_df["Task_Status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+
+    user_clean = str(user).strip().lower()
+
+    # -------------------------
+    # ALWAYS DEFINE THIS
+    # -------------------------
+    my_active_tasks = tasks_df[
+        (tasks_df["assigned_clean"] == user_clean) &
+        (tasks_df["status_clean"].str.contains("progress"))
+    ]
+
+    # -------------------------
+    # DISPLAY LOGIC
+    # -------------------------
+    if my_active_tasks.empty:
+        st.success("🎉 You have no tasks currently in progress.")
+    else:
+        for _, current_task in my_active_tasks.iterrows():
+
+            order_id = current_task["Order_ID"]
+            lifecycle = current_task["Lifecycle_Stage"]
+
+            st.divider()
+            st.markdown(f"### 📦 Order `{order_id}` — {lifecycle}")
+
+            col1, col2 = st.columns(2)
+
+            # -------------------------
+            # CURRENT TASK
+            # -------------------------
+            with col1:
+                st.markdown("**🔴 Current Task (In Progress)**")
+                st.write(f"**Task ID:** {current_task['Task_ID']}")
+                st.write(f"**Task Name:** {current_task['Task_Name']}")
+                st.write(f"**Started On:** {current_task['Task_Start_Date']}")
+
                 # -------------------------
                 # NEXT TASK (FROM DICTIONARY)
                 # -------------------------
