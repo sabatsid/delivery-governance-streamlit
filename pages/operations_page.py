@@ -149,36 +149,13 @@ def operations_page(data):
     # -------------------------
 
     with tab2:
-    st.subheader("🎫 Customer Tickets")
-    st.caption("Tickets raised by customers and routed to operations teams")
-
-    tickets = pd.DataFrame(
-        st.session_state.get("customer_tickets", [])
-    )
-
-    if tickets.empty:
-        st.info("No customer tickets raised yet.")
-    else:
-        # OPTIONAL (later): filter by ops team
-        # current_team = st.session_state.user_profile.get("Team_Name")
-        # tickets = tickets[tickets["Routed_Team"] == current_team]
-
-        st.dataframe(
-            tickets[
-                [
-                    "Ticket_ID",
-                    "Order_ID",
-                    "Customer_Name",
-                    "Lifecycle_Stage",
-                    "Routed_Team",
-                    "Issue",
-                    "Status",
-                    "Raised_On"
-                ]
-            ],
-            use_container_width=True
+        st.subheader("🚨 Customer Tickets")
+        st.info(
+            "Tickets raised by customers "
+            "for delayed or at-risk orders."
         )
-
+        st.caption("🚧 Coming next")
+   
     # -------------------------
     # TAB 3: PROGRAM ESCALATIONS
     # -------------------------
