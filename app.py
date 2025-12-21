@@ -28,7 +28,6 @@ if "customer_tickets" not in st.session_state:
 if "app_mode" not in st.session_state:
     st.session_state.app_mode = "Demo"
 
-
 # -------------------------
 # LOAD EXCEL DATA
 # -------------------------
@@ -66,7 +65,6 @@ LIFECYCLE_TO_OPS_TEAM = {
     "Order to Activation": "OPS_INSTALL"
 }
 
-
 # Initialise persona
 if "persona" not in st.session_state:
     st.session_state.persona = None
@@ -79,7 +77,6 @@ if "logged_in" not in st.session_state:
 
 if "user_profile" not in st.session_state:
     st.session_state.user_profile = None
-
 
 # -------------------------
 # LANDING PAGE (4 DOORS)
@@ -147,7 +144,6 @@ def landing_page():
     else:
         login_page()
 
-
 def login_page():
     st.title("🔐 Secure Login")
     st.caption("Access the Delivery Governance Control Tower")
@@ -197,7 +193,15 @@ if st.session_state.get("logged_in"):
 
         if st.button("🚪 Logout"):
             logout()
-            
+
+
+# -------------------------
+# CUSTOMER TICKETS STORE
+# -------------------------
+if "customer_tickets" not in st.session_state:
+    st.session_state.customer_tickets = []
+
+
 # -------------------------
 # PAGE ROUTING
 # -------------------------
