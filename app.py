@@ -439,17 +439,42 @@ def operations_page():
         st.subheader("📋 My Active Tasks")
         st.caption("Tasks currently in progress and assigned to you")
     
+        # Logged-in user
         user = st.session_state.user_profile.get("POC_Name")
     
         tasks_df = data["tasks"].copy()
         dict_df = data["dictionary"].copy()
     
         # -------------------------
+        # CLEAN TEXT FOR RELIABLE MATCHING
+        # -------------------------
+        tasks_df["__assigned_clean"] = (
+            tasks_df["Assigned_To_POC"]
+            .astype(str)
+            .str.lower()
+            .str.replace(".", "", regex=False)
+            .str.replace(" ", "", regex=False)
+        )
+    
+        user_clean = (
+            str(user)
+            .lower()
+            .replace(".", "")
+            .replace(" ", "")
+        )
+    
+        tasks_df["__status_clean"] = (
+            tasks_df["Task_Status"]
+            .astype(str)
+            .str.lower()
+        )
+    
+        # -------------------------
         # FILTER IN-PROGRESS TASKS
         # -------------------------
         my_active_tasks = tasks_df[
-            (tasks_df["Assigned_To_POC"] == user) &
-            (tasks_df["Task_Status"] == "In Progress")
+            (tasks_df["__assigned_clean"] == user_clean) &
+            (tasks_df["__status_clean"] == "in progress")
         ]
     
         if my_active_tasks.empty:
@@ -476,6 +501,7 @@ def operations_page():
                     st.write(f"**Task ID:** {task_id}")
                     st.write(f"**Task Name:** {current_task['Task_Name']}")
                     st.write(f"**Started On:** {current_task['Task_Start_Date']}")
+
     
                 # -------------------------
                 # NEXT TASK (FROM DICTIONARY)
