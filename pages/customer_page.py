@@ -3,7 +3,7 @@ import pandas as pd
 # -------------------------
 # CUSTOMER PAGE
 # -------------------------
-def customer_page():
+def customer_page(data):
     st.title("📦 Track Your Order")
     st.caption("Real-time visibility into your order and support")
 
