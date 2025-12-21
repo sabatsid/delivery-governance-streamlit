@@ -194,14 +194,6 @@ if st.session_state.get("logged_in"):
         if st.button("🚪 Logout"):
             logout()
 
-
-# -------------------------
-# CUSTOMER TICKETS STORE
-# -------------------------
-if "customer_tickets" not in st.session_state:
-    st.session_state.customer_tickets = []
-
-
 # -------------------------
 # PAGE ROUTING
 # -------------------------
