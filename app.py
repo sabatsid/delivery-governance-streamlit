@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 from pages.customer_page import customer_page
+from pages.leadership_page import leadership_page
+from pages.operations_page import operations_page
+from pages.program_page import program_page
 
 # -------------------------
 # PAGE CONFIG (MUST BE FIRST)
@@ -682,13 +685,13 @@ if not st.session_state.logged_in:
     landing_page()
 
 elif st.session_state.persona == "Program":
-    program_manager_page()
+    program_page(data)
 
 elif st.session_state.persona == "Operations":
-    operations_page()
+    operations_page(data)
 
 elif st.session_state.persona == "Leader":
-    leadership_page()
+    leadership_page(data)
 
 elif st.session_state.persona == "Customer":
     customer_page(data)
