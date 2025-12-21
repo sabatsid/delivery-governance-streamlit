@@ -439,7 +439,7 @@ def operations_page():
         st.subheader("📋 My Active Tasks")
         st.caption("Tasks currently in progress and assigned to you")
     
-        user = st.session_state.user_profile.get("POC_Name")
+        user_email = st.session_state.user_profile.get("Login_ID")
     
         tasks_df = data["tasks"].copy()
         dict_df = data["dictionary"].copy()
@@ -467,9 +467,13 @@ def operations_page():
         # ALWAYS DEFINE THIS
         # -------------------------
         my_active_tasks = tasks_df[
-            (tasks_df["assigned_clean"] == user_clean) &
-            (tasks_df["status_clean"].str.contains("progress"))
+            (tasks_df["Assigned_To_POC"].str.strip().str.lower()
+             == user_email.strip().lower()) &
+            (tasks_df["Task_Status"].str.strip().str.lower()
+             == "in progress")
         ]
+
+        st.write(f"👤 Logged in as: {st.session_state.user_profile['POC_Name']}")
 
         st.divider()
         st.subheader("🛠 DEBUG – Assignment Check (Temporary)")
