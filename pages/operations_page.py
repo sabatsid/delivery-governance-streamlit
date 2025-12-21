@@ -33,8 +33,8 @@ def operations_page(data):
         st.subheader("📋 My Active Tasks")
         st.caption("Tasks currently in progress and assigned to you")
     
-        user_email = st.session_state.user_profile.get("Login_ID")
-    
+        user_email = str(st.session_state.user_profile.get("Login_ID", "")).strip().lower()
+
         tasks_df = data["tasks"].copy()
         dict_df = data["dictionary"].copy()
     
@@ -59,10 +59,16 @@ def operations_page(data):
         # ALWAYS DEFINE THIS
         # -------------------------
         my_active_tasks = tasks_df[
-            (tasks_df["Assigned_To_POC"].str.strip().str.lower()
-             == user_email.strip().lower()) &
-            (tasks_df["Task_Status"].str.strip().str.lower()
-             == "In Progress")
+            (tasks_df["Assigned_To_POC"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                == user_email) &
+            (tasks_df["Task_Status"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                == "in progress")
         ]
 
         st.write(f"👤 Logged in as: {st.session_state.user_profile['POC_Name']}")
