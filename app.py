@@ -470,7 +470,19 @@ def operations_page():
             (tasks_df["assigned_clean"] == user_clean) &
             (tasks_df["status_clean"].str.contains("progress"))
         ]
-    
+
+        st.divider()
+        st.subheader("🛠 DEBUG – Assignment Check (Temporary)")
+        
+        st.write("Logged-in user (POC_Name):", user)
+        
+        st.write("Unique Assigned_To_POC values in data:")
+        st.write(tasks_df["Assigned_To_POC"].unique())
+        
+        st.write("Unique Task_Status values in data:")
+        st.write(tasks_df["Task_Status"].unique())
+
+        
         # -------------------------
         # DISPLAY LOGIC
         # -------------------------
