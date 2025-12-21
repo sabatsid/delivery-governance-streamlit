@@ -149,7 +149,7 @@ def operations_page(data):
     # -------------------------
 
     with tab2:
-        st.subheader("🚨 Customer Tickets")
+        st.subheader("🎫 Customer Tickets")
         st.info(
             "Tickets raised by customers "
             "for delayed or at-risk orders."
