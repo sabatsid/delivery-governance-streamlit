@@ -470,23 +470,11 @@ def operations_page():
             (tasks_df["Assigned_To_POC"].str.strip().str.lower()
              == user_email.strip().lower()) &
             (tasks_df["Task_Status"].str.strip().str.lower()
-             == "in progress")
+             == "In Progress")
         ]
 
         st.write(f"👤 Logged in as: {st.session_state.user_profile['POC_Name']}")
-
-        st.divider()
-        st.subheader("🛠 DEBUG – Assignment Check (Temporary)")
-        
-        st.write("Logged-in user (POC_Name):", user)
-        
-        st.write("Unique Assigned_To_POC values in data:")
-        st.write(tasks_df["Assigned_To_POC"].unique())
-        
-        st.write("Unique Task_Status values in data:")
-        st.write(tasks_df["Task_Status"].unique())
-
-        
+     
         # -------------------------
         # DISPLAY LOGIC
         # -------------------------
