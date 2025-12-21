@@ -448,8 +448,8 @@ def operations_page():
             tasks_df[[
                 "Order_ID",
                 "Task_ID",
-                "Task_Name",
                 "Assigned_To_POC",
+                "Assigned_To_Team",
                 "Task_Status"
             ]].head(10),
             use_container_width=True
