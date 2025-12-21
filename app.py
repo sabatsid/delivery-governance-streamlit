@@ -448,7 +448,7 @@ def operations_page():
         # FILTER IN-PROGRESS TASKS
         # -------------------------
         my_active_tasks = tasks_df[
-            (tasks_df["Assigned_To_Team"] == user) &
+            (tasks_df["Assigned_To_POC"] == user) &
             (tasks_df["Task_Status"] == "In Progress")
         ]
     
