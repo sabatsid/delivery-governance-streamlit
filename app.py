@@ -437,13 +437,24 @@ def operations_page():
     # -------------------------
     with tab1:
         st.subheader("📋 My Active Tasks")
-        st.caption("Tasks currently in progress and assigned to you")
     
-        # Logged-in user
         user = st.session_state.user_profile.get("POC_Name")
+        st.info(f"🔍 Logged in user (POC_Name): {user}")
     
         tasks_df = data["tasks"].copy()
-        dict_df = data["dictionary"].copy()
+    
+        st.markdown("### 🔎 Sample task assignments (debug)")
+        st.dataframe(
+            tasks_df[[
+                "Order_ID",
+                "Task_ID",
+                "Task_Name",
+                "Assigned_To_POC",
+                "Task_Status"
+            ]].head(10),
+            use_container_width=True
+        )
+
     
         # -------------------------
         # CLEAN TEXT FOR RELIABLE MATCHING
