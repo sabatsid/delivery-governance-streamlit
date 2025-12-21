@@ -439,7 +439,7 @@ def operations_page():
         st.subheader("📋 My Active Tasks")
     
         user = st.session_state.user_profile.get("POC_Name")
-        st.info(f"🔍 Logged in user (POC_Name): {user}")
+        st.info(f"🔍 Logged in user: {user}")
     
         tasks_df = data["tasks"].copy()
     
@@ -455,38 +455,28 @@ def operations_page():
             use_container_width=True
         )
 
+    # -------------------------
+    # NORMALISE DATA
+    # -------------------------
+    tasks_df["assigned_clean"] = (
+        tasks_df["Assigned_To_POC"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
     
-        # -------------------------
-        # CLEAN TEXT FOR RELIABLE MATCHING
-        # -------------------------
-        tasks_df["__assigned_clean"] = (
-            tasks_df["Assigned_To_POC"]
-            .astype(str)
-            .str.lower()
-            .str.replace(".", "", regex=False)
-            .str.replace(" ", "", regex=False)
-        )
+    tasks_df["status_clean"] = (
+        tasks_df["Task_Status"]
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
     
-        user_clean = (
-            str(user)
-            .lower()
-            .replace(".", "")
-            .replace(" ", "")
-        )
-    
-        tasks_df["__status_clean"] = (
-            tasks_df["Task_Status"]
-            .astype(str)
-            .str.lower()
-        )
-    
-        # -------------------------
-        # FILTER IN-PROGRESS TASKS
-        # -------------------------
-        my_active_tasks = tasks_df[
-            (tasks_df["__assigned_clean"] == user_clean) &
-            (tasks_df["__status_clean"] == "In Progress")
-        ]
+    user_clean = (
+        str(user)
+        .strip()
+        .lower()
+    )
     
         if my_active_tasks.empty:
             st.success("🎉 You have no tasks currently in progress.")
@@ -495,7 +485,6 @@ def operations_page():
     
                 order_id = current_task["Order_ID"]
                 lifecycle = current_task["Lifecycle_Stage"]
-                task_id = current_task["Task_ID"]
     
                 st.divider()
                 st.markdown(
@@ -509,7 +498,7 @@ def operations_page():
                 # -------------------------
                 with col1:
                     st.markdown("**🔴 Current Task (In Progress)**")
-                    st.write(f"**Task ID:** {task_id}")
+                    st.write(f"**Task ID:** {current_task['Task_ID']}")
                     st.write(f"**Task Name:** {current_task['Task_Name']}")
                     st.write(f"**Started On:** {current_task['Task_Start_Date']}")
 
