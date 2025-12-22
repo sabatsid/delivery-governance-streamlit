@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from pages.customer_page import customer_page
+from views.customer_view import customer_view
 from pages.leadership_page import leadership_page
 from pages.operations_page import operations_page
 from pages.program_page import program_page
@@ -210,6 +210,6 @@ elif st.session_state.persona == "Leader":
     leadership_page(data)
 
 elif st.session_state.persona == "Customer":
-    customer_page(data)
+    customer_view(data)
 
 
