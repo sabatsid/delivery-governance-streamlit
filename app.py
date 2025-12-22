@@ -3,7 +3,7 @@ import pandas as pd
 from views.customer_view import customer_view
 from pages.leadership_page import leadership_page
 from views.operations_view import operations_view
-from pages.program_page import program_page
+from views.program_view import program_view
 
 # -------------------------
 # PAGE CONFIG (MUST BE FIRST)
@@ -201,7 +201,7 @@ if not st.session_state.logged_in:
     landing_page()
 
 elif st.session_state.persona == "Program":
-    program_page(data)
+    program_view(data)
 
 elif st.session_state.persona == "Operations":
     operations_view(data)
