@@ -194,8 +194,6 @@ if st.session_state.get("logged_in"):
         if st.button("🚪 Logout"):
             logout()
 
-st.write("DEBUG → persona:", st.session_state.persona)
-
 # -------------------------
 # PAGE ROUTING
 # -------------------------
@@ -208,7 +206,7 @@ elif st.session_state.persona == "Program":
 elif st.session_state.persona == "Operations":
     operations_page(data)
 
-elif st.session_state.persona == "Leader":
+elif st.session_state.persona in ["Leader", "Leadership"]:
     leadership_page(data)
 
 elif st.session_state.persona == "Customer":
