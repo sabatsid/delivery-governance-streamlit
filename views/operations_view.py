@@ -19,7 +19,7 @@ LIFECYCLE_TO_OPS_TEAM = {
 def operations_view(data):
     st.title("🛠 Operations Execution Hub")
     st.caption("Task execution, customer requests, and program escalations")
-
+    st.error("ERROR!")
     tab1, tab2, tab3 = st.tabs([
         "📋 My Task Inbox",
         "🎫 Customer Tickets",
