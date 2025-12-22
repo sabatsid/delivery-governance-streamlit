@@ -206,7 +206,7 @@ elif st.session_state.persona == "Program":
 elif st.session_state.persona == "Operations":
     operations_page(data)
 
-elif st.session_state.persona in ["Leader", "Leadership"]:
+elif st.session_state.persona == "Leader":
     leadership_page(data)
 
 elif st.session_state.persona == "Customer":
