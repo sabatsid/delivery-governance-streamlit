@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from views.customer_view import customer_view
 from pages.leadership_page import leadership_page
-from pages.operations_view import operations_view
+from views.operations_view import operations_view
 from pages.program_page import program_page
 
 # -------------------------
