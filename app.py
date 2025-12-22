@@ -194,6 +194,8 @@ if st.session_state.get("logged_in"):
         if st.button("🚪 Logout"):
             logout()
 
+st.write("DEBUG → persona:", st.session_state.persona)
+
 # -------------------------
 # PAGE ROUTING
 # -------------------------
