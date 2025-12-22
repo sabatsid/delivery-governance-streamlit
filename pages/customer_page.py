@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-st.error("🔥 NEW FILE VERSION LOADED")
 
 # ---------------------------------
 # LIFECYCLE → OPS TEAM ROUTING
@@ -20,6 +19,7 @@ LIFECYCLE_TO_OPS_TEAM = {
 def customer_page(data):
     st.title("📦 Track Your Order")
     st.caption("Real-time visibility into your order and support")
+    st.error("🔥 NEW FILE VERSION LOADED")
 
     user = st.session_state.user_profile
     customer_order_id = user["Order_ID"]
