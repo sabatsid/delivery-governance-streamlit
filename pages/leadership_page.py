@@ -9,32 +9,6 @@ def leadership_page(data):
     st.title("📊 Leadership Dashboard")
     st.caption("Executive view of delivery health, risk trends, and customer impact")
 
-    orders_df = data["orders"].copy()
-
-    # -------------------------
-    # DATA PREP
-    # -------------------------
-    orders_df["Order_Start_Date"] = pd.to_datetime(
-        orders_df["Order_Start_Date"], errors="coerce"
-    )
-
-    orders_df["Order_Ageing_Days"] = (
-        pd.Timestamp.today() - orders_df["Order_Start_Date"]
-    ).dt.days
-
-    def derive_rag(row):
-        if row.get("SLA_Breach_Flag") == "Yes":
-            return "Red"
-        elif row.get("Overall_RAG") == "Amber":
-            return "Amber"
-        else:
-            return "Green"
-
-    orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
-
-    # -------------------------
-    # TABS
-    # -------------------------
     tab1, tab2, tab3 = st.tabs([
         "📊 KPIs",
         "📈 Trends",
@@ -46,7 +20,28 @@ def leadership_page(data):
     # ======================================================
     with tab1:
         st.subheader("📊 Delivery Health Overview")
-
+        orders_df = data["orders"].copy()
+    
+        # -------------------------
+        # DATA PREP
+        # -------------------------
+        orders_df["Order_Start_Date"] = pd.to_datetime(
+            orders_df["Order_Start_Date"], errors="coerce"
+        )
+    
+        orders_df["Order_Ageing_Days"] = (
+            pd.Timestamp.today() - orders_df["Order_Start_Date"]
+        ).dt.days
+    
+        def derive_rag(row):
+            if row.get("SLA_Breach_Flag") == "Yes":
+                return "Red"
+            elif row.get("Overall_RAG") == "Amber":
+                return "Amber"
+            else:
+                return "Green"
+    
+        orders_df["Derived_RAG"] = orders_df.apply(derive_rag, axis=1)
         total_orders = len(orders_df)
         breached_orders = (orders_df["SLA_Breach_Flag"] == "Yes").sum()
         breach_pct = round((breached_orders / total_orders) * 100, 1) if total_orders else 0
