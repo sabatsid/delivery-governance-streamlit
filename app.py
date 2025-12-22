@@ -31,7 +31,7 @@ if "app_mode" not in st.session_state:
 # -------------------------
 # LOAD EXCEL DATA
 # -------------------------
-@st.cache_data
+# @st.cache_data
 def load_data():
     excel_file = "Delivery_governance_data.xlsx"
     
