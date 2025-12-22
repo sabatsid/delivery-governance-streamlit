@@ -1,11 +1,11 @@
 import streamlit as st
 import pandas as pd
-st.write("Loaded Man")
 
 # -------------------------
 # LEADERSHIP PAGE
 # -------------------------
 def leadership_page(data):
+    st.error("🚨 LEADERSHIP PAGE FUNCTION IS RUNNING")
     st.title("📊 Leadership Dashboard")
     st.caption("Executive view of delivery health, risk trends, and customer impact")
 
