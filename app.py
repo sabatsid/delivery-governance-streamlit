@@ -207,6 +207,7 @@ elif st.session_state.persona == "Operations":
     operations_page(data)
 
 elif st.session_state.persona in ["Leader", "Leadership"]:
+    st.error("ROUTING HIT FOR LEADERSHIP")
     leadership_page(data)
 
 elif st.session_state.persona == "Customer":
