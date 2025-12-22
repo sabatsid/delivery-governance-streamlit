@@ -122,7 +122,7 @@ def landing_page():
                 
         with col3:
             if st.button("📊 Leadership"):
-                st.session_state.persona = "Leader"
+                st.session_state.persona = "Leadership"
                 st.session_state.logged_in = True
                 st.session_state.user_profile = {
                     "POC_Name": "Demo Leadership"
@@ -206,8 +206,7 @@ elif st.session_state.persona == "Program":
 elif st.session_state.persona == "Operations":
     operations_page(data)
 
-elif st.session_state.persona in ["Leader", "Leadership"]:
-    st.error("ROUTING HIT FOR LEADERSHIP")
+elif st.session_state.persona == "Leadership":
     leadership_page(data)
 
 elif st.session_state.persona == "Customer":
