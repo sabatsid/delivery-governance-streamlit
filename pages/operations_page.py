@@ -17,7 +17,6 @@ LIFECYCLE_TO_OPS_TEAM = {
 # OPERATIONS PAGE
 # -------------------------
 def operations_page(data):
-    st.error("🚨 NEW LEADERSHIP PAGE IS RUNNING")
     st.title("🛠 Operations Execution Hub")
     st.caption("Task execution, customer requests, and program escalations")
 
@@ -163,13 +162,3 @@ def operations_page(data):
         )
         st.caption("🚧 Coming next")
    
-    # -------------------------
-    # TAB 3: PROGRAM ESCALATIONS
-    # -------------------------
-    with tab3:
-        st.subheader("🚨 Program Escalations & Requests")
-        st.info(
-            "Escalations and action requests raised by Program Managers "
-            "for delayed or at-risk orders."
-        )
-        st.caption("🚧 Coming next")
