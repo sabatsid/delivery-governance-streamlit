@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from views.customer_view import customer_view
 from pages.leadership_page import leadership_page
-from pages.operations_page import operations_page
+from pages.operations_view import operations_view
 from pages.program_page import program_page
 
 # -------------------------
@@ -204,7 +204,7 @@ elif st.session_state.persona == "Program":
     program_page(data)
 
 elif st.session_state.persona == "Operations":
-    operations_page(data)
+    operations_view(data)
 
 elif st.session_state.persona == "Leader":
     leadership_page(data)
