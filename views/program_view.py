@@ -25,7 +25,7 @@ def clear_program_filters():
 def program_view(data):
     st.title("🧭 Program Manager")
     st.caption("End-to-end portfolio oversight and program governance")
-
+    st.error("Page Running")
     orders_df = data["orders"].copy()
     tasks_df = data["tasks"].copy()
 
