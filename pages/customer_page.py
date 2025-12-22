@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+st.error("🔥 NEW FILE VERSION LOADED")
 
 # ---------------------------------
 # LIFECYCLE → OPS TEAM ROUTING
