@@ -5,7 +5,6 @@ import pandas as pd
 # LEADERSHIP PAGE
 # -------------------------
 def leadership_view(data):
-    st.error("🚨 PAGE RUNNING!")
     st.title("📊 Leadership Dashboard")
     st.caption("Executive view of delivery health, risk trends, and customer impact")
 
