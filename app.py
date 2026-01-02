@@ -1,11 +1,11 @@
 import sys
 from pathlib import Path
 
-# -------------------------------------------------
-# Ensure repo root is on PYTHONPATH (Streamlit Cloud)
-# -------------------------------------------------
 ROOT_DIR = Path(__file__).parent
-sys.path.append(str(ROOT_DIR))
+VIEWS_DIR = ROOT_DIR / "views"
+
+sys.path.insert(0, str(ROOT_DIR))
+sys.path.insert(0, str(VIEWS_DIR))
 
 import streamlit as st
 import pandas as pd
