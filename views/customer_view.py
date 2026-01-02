@@ -19,6 +19,27 @@ LIFECYCLE_TO_OPS_TEAM = {
 def customer_view(data):
     st.title("📦 Track Your Order")
     st.caption("Real-time visibility into your order and support")
+    st.error("🔥 CUSTOMER VIEW LOADED FROM VIEWS/")
+    if st.button("🚨 Submit Ticket"):
+    ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
+
+    st.session_state.customer_tickets.append({
+        "Ticket_ID": ticket_id,
+        "Order_ID": customer_order_id,
+        "Customer_Name": user["POC_Name"],
+        "Lifecycle_Stage": lifecycle,
+        "Routed_Team": routed_team,
+        "Category": ticket_reason,
+        "Description": ticket_description,
+        "Status": "Open",
+        "Raised_On": pd.Timestamp.now()
+    })
+
+    st.success(
+        f"✅ Ticket **{ticket_id}** raised successfully. "
+        "Our operations team will contact you shortly."
+    )
+
 
     user = st.session_state.user_profile
     customer_order_id = user["Order_ID"]
@@ -110,7 +131,7 @@ def customer_view(data):
         f"📍 This ticket will be routed to **{routed_team}** based on your current stage."
     )
 
-    if st.button("🚨 Submit STicket"):
+    if st.button("🚨 Submit Ticket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
     
         st.session_state.customer_tickets.append({
