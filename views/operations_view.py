@@ -1,4 +1,5 @@
 import streamlit as st
+st.error("Page running successfully!")
 import pandas as pd
 
 # ---------------------------------
