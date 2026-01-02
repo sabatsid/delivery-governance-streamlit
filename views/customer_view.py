@@ -19,7 +19,7 @@ LIFECYCLE_TO_OPS_TEAM = {
 def customer_view(data):
     st.title("📦 Track Your Order")
     st.caption("Real-time visibility into your order and support")
-    st.error("🔥 CUSTOMER VIEW LOADED FROM VIEWS/")
+    st.success("🔥 CUSTOMER VIEW LOADED FROM VIEWS/")
     if st.button("🚨 Submit Ticket"):
     ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
 
