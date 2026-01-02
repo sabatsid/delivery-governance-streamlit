@@ -84,6 +84,7 @@ if "user_profile" not in st.session_state:
 def landing_page():
     st.title("Delivery Governance Control Tower")
     st.caption("End-to-end execution and governance across the delivery lifecycle")
+    st.error("Page loading!!!")
     st.divider()
 
     # Mode toggle
