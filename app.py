@@ -1,10 +1,11 @@
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent
+sys.path.append(str(ROOT_DIR))
+
 import streamlit as st
 import pandas as pd
-from views.customer_view import customer_view
-from views.leadership_view import leadership_view
-from views.operations_view import operations_view
-from views.program_view import program_view
-
 # -------------------------
 # PAGE CONFIG (MUST BE FIRST)
 # -------------------------
@@ -12,6 +13,14 @@ st.set_page_config(
     page_title="Delivery Governance Control Tower",
     layout="wide"
 )
+
+
+from views.customer_view import customer_view
+from views.leadership_view import leadership_view
+from views.operations_view import operations_view
+from views.program_view import program_view
+
+
 
 if "escalations_log" not in st.session_state:
     st.session_state["escalations_log"] = []
