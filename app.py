@@ -9,7 +9,7 @@ from views.program_view import program_view
 # PAGE CONFIG (MUST BE FIRST)
 # -------------------------
 st.set_page_config(
-    page_title="Delivery Governance Control Tower",
+    page_title="Delivery Governance Control Tower"
     layout="wide"
 )
 
