@@ -111,17 +111,24 @@ def customer_view(data):
     )
 
     if st.button("🚨 Submit Ticket"):
+        ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
+    
         st.session_state.customer_tickets.append({
+            "Ticket_ID": ticket_id,
             "Order_ID": customer_order_id,
             "Customer_Name": user["POC_Name"],
             "Lifecycle_Stage": lifecycle,
             "Routed_Team": routed_team,
             "Category": ticket_reason,
             "Description": ticket_description,
-            "Timestamp": pd.Timestamp.now()
+            "Status": "Open",
+            "Raised_On": pd.Timestamp.now()
         })
-
-        st.success("✅ Ticket raised successfully. Our team will contact you shortly.")
+    
+        st.success(
+            f"✅ Ticket **{ticket_id}** raised successfully. "
+            "Our team will contact you shortly."
+        )
 
     # -------------------------
     # VIEW PREVIOUS TICKETS
