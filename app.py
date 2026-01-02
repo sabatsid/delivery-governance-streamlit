@@ -7,13 +7,40 @@ VIEWS_DIR = ROOT_DIR / "views"
 sys.path.insert(0, str(ROOT_DIR))
 sys.path.insert(0, str(VIEWS_DIR))
 
+import importlib.util
+
+def load_view(module_name, file_path):
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 import streamlit as st
 import pandas as pd
 
-from views.customer_view import customer_view
-from views.leadership_view import leadership_view
-from views.operations_view import operations_view
-from views.program_view import program_view
+views_path = ROOT_DIR / "views"
+
+customer_view = load_view(
+    "customer_view",
+    views_path / "customer_view.py"
+).customer_view
+
+leadership_view = load_view(
+    "leadership_view",
+    views_path / "leadership_view.py"
+).leadership_view
+
+operations_view = load_view(
+    "operations_view",
+    views_path / "operations_view.py"
+).operations_view
+
+program_view = load_view(
+    "program_view",
+    views_path / "program_view.py"
+).program_view
+
 
 # -------------------------
 # PAGE CONFIG (FIRST STREAMLIT CALL)
