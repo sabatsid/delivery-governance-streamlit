@@ -217,7 +217,11 @@ elif st.session_state.persona == "Leader":
     leadership_view(data)
 
 elif st.session_state.persona == "Customer":
-    customer_view(data)
+    try:
+        customer_view(data)
+    except Exception as e:
+        st.exception(e)
+        st.stop()
 
 
 
