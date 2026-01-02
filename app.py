@@ -1,9 +1,3 @@
-import sys
-from pathlib import Path
-
-ROOT_DIR = Path(__file__).parent
-sys.path.append(str(ROOT_DIR))
-
 import streamlit as st
 import pandas as pd
 from views.customer_view import customer_view
@@ -90,7 +84,6 @@ if "user_profile" not in st.session_state:
 def landing_page():
     st.title("Delivery Governance Control Tower")
     st.caption("End-to-end execution and governance across the delivery lifecycle")
-    st.error("Page loading!!!")
     st.divider()
 
     # Mode toggle
