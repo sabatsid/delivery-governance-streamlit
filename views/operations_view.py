@@ -1,4 +1,230 @@
 import streamlit as st
+st.error("Page running successfully!")
+import pandas as pd
 
+# ---------------------------------
+# LIFECYCLE → OPS TEAM ROUTING
+# ---------------------------------
+LIFECYCLE_TO_OPS_TEAM = {
+    "Lead to Order": "OPS_L2O",
+    "Customer Onboarding": "OPS_ONBOARDING",
+    "Build to Order": "OPS_B2O",
+    "Last Mile Build – Wireless": "OPS_LMB_WIRELESS",
+    "Last Mile Build – Fiber": "OPS_LMB_FIBER",
+    "Order to Activation": "OPS_O2A"
+}
+
+# -------------------------
+# OPERATIONS PAGE
+# -------------------------
 def operations_view(data):
-    st.title("Operations View OK")
+    st.title("🛠 Operations Execution Hub")
+    st.caption("Task execution, customer requests, and program escalations")
+    tab1, tab2, tab3 = st.tabs([
+        "📋 My Task Inbox",
+        "🎫 Customer Tickets",
+        "🚨 Program Escalations"
+    ])
+
+    # -------------------------
+    # TAB 1: MY TASK INBOX
+    # -------------------------
+    with tab1:
+        st.subheader("📋 My Active Tasks")
+        st.caption("Tasks currently in progress and assigned to you")
+    
+        user_email = str(st.session_state.user_profile.get("Login_ID", "")).strip().lower()
+
+        tasks_df = data["tasks"].copy()
+        dict_df = data["dictionary"].copy()
+    
+        # -------------------------
+        # NORMALISE DATA (VERY IMPORTANT)
+        # -------------------------
+        tasks_df["assigned_clean"] = (
+            tasks_df["Assigned_To_POC"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+    
+        tasks_df["status_clean"] = (
+            tasks_df["Task_Status"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+ 
+        # -------------------------
+        # ALWAYS DEFINE THIS
+        # -------------------------
+        my_active_tasks = tasks_df[
+            (tasks_df["Assigned_To_POC"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                == user_email) &
+            (tasks_df["Task_Status"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+                == "in progress")
+        ]
+
+        st.write(f"👤 Logged in as: {st.session_state.user_profile['POC_Name']}")
+     
+        # -------------------------
+        # DISPLAY LOGIC
+        # -------------------------
+        if my_active_tasks.empty:
+            st.success("🎉 You have no tasks currently in progress.")
+        else:
+            for _, current_task in my_active_tasks.iterrows():
+    
+                order_id = current_task["Order_ID"]
+                lifecycle = current_task["Lifecycle_Stage"]
+    
+                st.divider()
+                st.markdown(f"### 📦 Order `{order_id}` — {lifecycle}")
+    
+                col1, col2 = st.columns(2)
+    
+                # -------------------------
+                # CURRENT TASK
+                # -------------------------
+                with col1:
+                    st.markdown("**🔴 Current Task (In Progress)**")
+                    st.write(f"**Task ID:** {current_task['Task_ID']}")
+                    st.write(f"**Task Name:** {current_task['Task_Name']}")
+                    st.write(f"**Started On:** {current_task['Task_Start_Date']}")
+
+                # -------------------------
+                # NEXT TASK (FROM DICTIONARY)
+                # -------------------------
+                with col2:
+                    st.markdown("**➡️ Next Task (Upcoming)**")
+    
+                    lifecycle_tasks = dict_df[
+                        dict_df["Lifecycle_Stage"] == lifecycle
+                    ].sort_values("Task_ID")
+    
+                    task_sequence = lifecycle_tasks["Task_ID"].tolist()
+    
+                    if task_id in task_sequence:
+                        current_index = task_sequence.index(task_id)
+    
+                        if current_index + 1 < len(task_sequence):
+                            next_task = lifecycle_tasks.iloc[current_index + 1]
+                            st.write(f"**Task ID:** {next_task['Task_ID']}")
+                            st.write(f"**Task Name:** {next_task['Task_Name']}")
+                        else:
+                            st.write("🎯 This is the final task in this lifecycle.")
+                    else:
+                        st.write("Next task not found in dictionary.")
+    
+                # -------------------------
+                # COMPLETED TASKS (JOURNEY SO FAR)
+                # -------------------------
+                with st.expander("📜 View journey so far (completed tasks)"):
+                    completed_tasks = tasks_df[
+                        (tasks_df["Order_ID"] == order_id) &
+                        (tasks_df["Task_Status"] == "Completed")
+                    ]
+    
+                    if completed_tasks.empty:
+                        st.info("No completed tasks yet.")
+                    else:
+                        display_cols = [
+                            "Task_ID",
+                            "Task_Name",
+                            "Assigned_To",
+                            "Task_End_Date"
+                        ]
+                        display_cols = [
+                            c for c in display_cols
+                            if c in completed_tasks.columns
+                        ]
+    
+                        st.dataframe(
+                            completed_tasks[display_cols],
+                            use_container_width=True
+                        )
+    
+    # -------------------------
+    # TAB 2: CUSTOMER TICKETS
+    # -------------------------
+    with tab2:
+        st.subheader("🎫 Customer Tickets")
+        st.caption("Customer-raised issues routed to your operations team")
+    
+        user_team = st.session_state.user_profile.get("Team_Name")
+    
+        tickets = st.session_state.get("customer_tickets", [])
+    
+        if not tickets:
+            st.info("No customer tickets raised yet.")
+        else:
+            tickets_df = pd.DataFrame(tickets)
+    
+            my_team_tickets = tickets_df[
+                tickets_df["Routed_Team"] == user_team
+            ]
+    
+            if my_team_tickets.empty:
+                st.success("🎉 No customer tickets for your team.")
+            else:
+                for _, t in my_team_tickets.iterrows():
+                    st.divider()
+    
+                    st.markdown(
+                        f"""
+                        **🎫 Ticket ID:** `{t['Ticket_ID']}`  
+                        **📦 Order ID:** `{t['Order_ID']}`  
+                        **👤 Customer:** {t['Customer_Name']}  
+                        **🛠 Lifecycle:** {t['Lifecycle_Stage']}  
+                        **📂 Category:** {t['Category']}  
+                        **📝 Description:** {t['Description']}  
+                        **📌 Status:** {t['Status']}  
+                        **⏱ Raised On:** {t['Raised_On']}
+                        """
+                    )
+    
+                    col1, col2 = st.columns(2)
+    
+                    with col1:
+                        st.button(
+                            "👀 View Order",
+                            key=f"view_{t['Ticket_ID']}"
+                        )
+    
+                    with col2:
+                        if t["Status"] == "Open":
+                            if st.button(
+                                "✅ Acknowledge",
+                                key=f"ack_{t['Ticket_ID']}"
+                            ):
+                                tickets_df.loc[
+                                    tickets_df["Ticket_ID"] == t["Ticket_ID"],
+                                    "Status"
+                                ] = "Acknowledged"
+    
+                                st.session_state.customer_tickets = (
+                                    tickets_df.to_dict("records")
+                                )
+    
+                                st.success(
+                                    f"Ticket {t['Ticket_ID']} acknowledged"
+                                )
+                                st.rerun()
+    
+       
+    # -------------------------
+    # TAB 3: PROGRAM ESCALATIONS
+    # -------------------------
+    with tab3:
+        st.subheader("🚨 Program Escalations & Requests")
+        st.info(
+            "Escalations and action requests raised by Program Managers "
+            "for delayed or at-risk orders."
+        )
+        st.caption("🚧 Coming next")
