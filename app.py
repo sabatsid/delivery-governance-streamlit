@@ -20,22 +20,20 @@ from views.leadership_view import leadership_view
 from views.operations_view import operations_view
 from views.program_view import program_view
 
-
-
-if "escalations_log" not in st.session_state:
-    st.session_state["escalations_log"] = []
-
-# -------------------------
-# CUSTOMER TICKET STORE
-# -------------------------
-if "customer_tickets" not in st.session_state:
-    st.session_state.customer_tickets = []
-
-# -------------------------
-# APP MODE (Demo vs Secure)
-# -------------------------
-if "app_mode" not in st.session_state:
-    st.session_state.app_mode = "Demo"
+    if "escalations_log" not in st.session_state:
+        st.session_state["escalations_log"] = []
+    
+    # -------------------------
+    # CUSTOMER TICKET STORE
+    # -------------------------
+    if "customer_tickets" not in st.session_state:
+        st.session_state.customer_tickets = []
+    
+    # -------------------------
+    # APP MODE (Demo vs Secure)
+    # -------------------------
+    if "app_mode" not in st.session_state:
+        st.session_state.app_mode = "Demo"
 
 # -------------------------
 # LOAD EXCEL DATA
