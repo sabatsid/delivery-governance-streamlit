@@ -110,7 +110,7 @@ def customer_view(data):
         f"📍 This ticket will be routed to **{routed_team}** based on your current stage."
     )
 
-    if st.button("🚨 Submit Ticket"):
+    if st.button("🚨 Submit STicket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
     
         st.session_state.customer_tickets.append({
