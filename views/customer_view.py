@@ -88,9 +88,6 @@ def customer_view(data):
         "LIFECYCLE_TO_OPS_TEAM", {}
     ).get(lifecycle, "OPS_GENERAL")
 
-    st.info(
-        f"📍 This ticket will be routed to **{routed_team}** based on your current stage."
-    )
 
     if st.button("🚨 Submit Ticket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
