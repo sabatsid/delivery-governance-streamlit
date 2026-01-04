@@ -149,89 +149,89 @@ def operations_view(data):
                             use_container_width=True
                         )
     
-# -------------------------
-# TAB 2: CUSTOMER TICKETS
-# -------------------------
-with tab2:
-    st.subheader("🎫 Customer Tickets")
-    st.caption("Customer-raised issues assigned to you")
-
-    user_email = (
-        st.session_state.user_profile
-        .get("Login_ID", "")
-        .strip()
-        .lower()
-    )
-
-    tickets = st.session_state.get("customer_tickets", [])
-
-    if not tickets:
-        st.info("No customer tickets raised yet.")
-    else:
-        tickets_df = pd.DataFrame(tickets)
-
-        # -------------------------
-        # NORMALISE EMAIL FOR MATCHING
-        # -------------------------
-        tickets_df["assigned_poc_clean"] = (
-            tickets_df["Assigned_To_POC"]
-            .astype(str)
-            .str.strip()
-            .str.lower()
+    # -------------------------
+    # TAB 2: CUSTOMER TICKETS
+    # -------------------------
+    with tab2:
+        st.subheader("🎫 Customer Tickets")
+        st.caption("Customer-raised issues assigned to you")
+    
+        user_email = (
+            st.session_state.user_profile
+            .get("Login_ID", "")
+            .strip()
+            .lower()
         )
-
-        my_tickets = tickets_df[
-            tickets_df["assigned_poc_clean"] == user_email
-        ]
-
-        if my_tickets.empty:
-            st.success("🎉 No customer tickets assigned to you.")
+    
+        tickets = st.session_state.get("customer_tickets", [])
+    
+        if not tickets:
+            st.info("No customer tickets raised yet.")
         else:
-            for _, t in my_tickets.iterrows():
-                st.divider()
-
-                st.markdown(
-                    f"""
-                    **🎫 Ticket ID:** `{t['Ticket_ID']}`  
-                    **📦 Order ID:** `{t['Order_ID']}`  
-                    **🛠 Task ID:** `{t['Task_ID']}`  
-                    **👤 Customer:** {t['Customer_Name']}  
-                    **📂 Category:** {t['Category']}  
-                    **📝 Description:** {t['Description']}  
-                    **📌 Status:** {t['Status']}  
-                    **⏱ Raised On:** {t['Raised_On']}
-                    """
-                )
-
-                col1, col2 = st.columns(2)
-
-                with col1:
-                    st.button(
-                        "👀 View Order",
-                        key=f"view_{t['Ticket_ID']}"
+            tickets_df = pd.DataFrame(tickets)
+    
+            # -------------------------
+            # NORMALISE EMAIL FOR MATCHING
+            # -------------------------
+            tickets_df["assigned_poc_clean"] = (
+                tickets_df["Assigned_To_POC"]
+                .astype(str)
+                .str.strip()
+                .str.lower()
+            )
+    
+            my_tickets = tickets_df[
+                tickets_df["assigned_poc_clean"] == user_email
+            ]
+    
+            if my_tickets.empty:
+                st.success("🎉 No customer tickets assigned to you.")
+            else:
+                for _, t in my_tickets.iterrows():
+                    st.divider()
+    
+                    st.markdown(
+                        f"""
+                        **🎫 Ticket ID:** `{t['Ticket_ID']}`  
+                        **📦 Order ID:** `{t['Order_ID']}`  
+                        **🛠 Task ID:** `{t['Task_ID']}`  
+                        **👤 Customer:** {t['Customer_Name']}  
+                        **📂 Category:** {t['Category']}  
+                        **📝 Description:** {t['Description']}  
+                        **📌 Status:** {t['Status']}  
+                        **⏱ Raised On:** {t['Raised_On']}
+                        """
                     )
-
-                with col2:
-                    if t["Status"] == "Open":
-                        if st.button(
-                            "✅ Acknowledge",
-                            key=f"ack_{t['Ticket_ID']}"
-                        ):
-                            tickets_df.loc[
-                                tickets_df["Ticket_ID"] == t["Ticket_ID"],
-                                "Status"
-                            ] = "Acknowledged"
-
-                            st.session_state.customer_tickets = (
-                                tickets_df.drop(
-                                    columns=["assigned_poc_clean"]
-                                ).to_dict("records")
-                            )
-
-                            st.success(
-                                f"Ticket {t['Ticket_ID']} acknowledged"
-                            )
-                            st.rerun()
+    
+                    col1, col2 = st.columns(2)
+    
+                    with col1:
+                        st.button(
+                            "👀 View Order",
+                            key=f"view_{t['Ticket_ID']}"
+                        )
+    
+                    with col2:
+                        if t["Status"] == "Open":
+                            if st.button(
+                                "✅ Acknowledge",
+                                key=f"ack_{t['Ticket_ID']}"
+                            ):
+                                tickets_df.loc[
+                                    tickets_df["Ticket_ID"] == t["Ticket_ID"],
+                                    "Status"
+                                ] = "Acknowledged"
+    
+                                st.session_state.customer_tickets = (
+                                    tickets_df.drop(
+                                        columns=["assigned_poc_clean"]
+                                    ).to_dict("records")
+                                )
+    
+                                st.success(
+                                    f"Ticket {t['Ticket_ID']} acknowledged"
+                                )
+                                st.rerun()
     
     # -------------------------
     # TAB 3: PROGRAM ESCALATIONS
