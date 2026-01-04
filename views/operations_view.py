@@ -184,15 +184,11 @@ def operations_view(data):
                         """
                     )
 
-                    col1, col2 = st.columns(2)
-
-                    with col1:
-                        st.button(
-                            "👀 View Order",
-                            key=f"view_{t['Ticket_ID']}"
-                        )
+                    col2 = st.columns(2)
 
                     with col2:
+                    
+                        # OPEN → ACKNOWLEDGED
                         if t["Status"] == "Open":
                             if st.button(
                                 "✅ Acknowledge",
@@ -200,19 +196,58 @@ def operations_view(data):
                             ):
                                 tickets_df.loc[
                                     tickets_df["Ticket_ID"] == t["Ticket_ID"],
-                                    "Status"
-                                ] = "Acknowledged"
-
-                                st.session_state.customer_tickets = (
-                                    tickets_df.drop(
-                                        columns=["assigned_poc_clean"]
-                                    ).to_dict("records")
-                                )
-
-                                st.success(
-                                    f"Ticket {t['Ticket_ID']} acknowledged"
-                                )
+                                    ["Status", "Status_Updated_On"]
+                                ] = ["Acknowledged", pd.Timestamp.now()]
+                    
+                                st.session_state.customer_tickets = tickets_df.to_dict("records")
+                                st.success("Ticket acknowledged")
                                 st.rerun()
+                    
+                        # ACKNOWLEDGED → IN PROGRESS
+                        elif t["Status"] == "Acknowledged":
+                            if st.button(
+                                "🔧 Start Work",
+                                key=f"progress_{t['Ticket_ID']}"
+                            ):
+                                tickets_df.loc[
+                                    tickets_df["Ticket_ID"] == t["Ticket_ID"],
+                                    ["Status", "Status_Updated_On"]
+                                ] = ["In Progress", pd.Timestamp.now()]
+                    
+                                st.session_state.customer_tickets = tickets_df.to_dict("records")
+                                st.info("Work started on ticket")
+                                st.rerun()
+                    
+                        # IN PROGRESS → RESOLVED
+                        elif t["Status"] == "In Progress":
+                            if st.button(
+                                "✅ Mark Resolved",
+                                key=f"resolve_{t['Ticket_ID']}"
+                            ):
+                                tickets_df.loc[
+                                    tickets_df["Ticket_ID"] == t["Ticket_ID"],
+                                    ["Status", "Status_Updated_On", "Customer_Notified"]
+                                ] = ["Resolved", pd.Timestamp.now(), True]
+                    
+                                st.session_state.customer_tickets = tickets_df.to_dict("records")
+                                st.success("Ticket resolved. Customer notified.")
+                                st.rerun()
+                    
+                        # RESOLVED (Waiting for auto close)
+                        elif t["Status"] == "Resolved":
+                            st.warning("⏳ Ticket will auto-close after 2 hours")
+
+            now = pd.Timestamp.now()
+        
+        for t in st.session_state.customer_tickets:
+            if t["Status"] == "Resolved":
+                resolved_at = t["Status_Updated_On"]
+        
+                if now - resolved_at > pd.Timedelta(hours=2):
+                    t["Status"] = "Closed"
+                    t["Status_Updated_On"] = now
+
+
 
     # =====================================================
     # TAB 3: PROGRAM ESCALATIONS
