@@ -139,38 +139,51 @@ def operations_view(data):
     with tab2:
         st.subheader("🎫 Customer Tickets")
         st.caption("Customer-raised issues assigned to you")
-
+    
+        # -------------------------
+        # AUTO-CLOSE RESOLVED TICKETS
+        # -------------------------
+        now = pd.Timestamp.now()
+    
+        for t in st.session_state.customer_tickets:
+            if t.get("Status") == "Resolved":
+                resolved_at = t.get("Status_Updated_On")
+    
+                if resolved_at and now - resolved_at > pd.Timedelta(hours=2):
+                    t["Status"] = "Closed"
+                    t["Status_Updated_On"] = now
+    
         user_email = (
             st.session_state.user_profile
             .get("Login_ID", "")
             .strip()
             .lower()
         )
-
+    
         tickets = st.session_state.get("customer_tickets", [])
-
+    
         if not tickets:
             st.info("No customer tickets raised yet.")
         else:
             tickets_df = pd.DataFrame(tickets)
-
+    
             tickets_df["assigned_poc_clean"] = (
                 tickets_df["Assigned_To_POC"]
                 .astype(str)
                 .str.strip()
                 .str.lower()
             )
-
+    
             my_tickets = tickets_df[
                 tickets_df["assigned_poc_clean"] == user_email
             ]
-
+    
             if my_tickets.empty:
                 st.success("🎉 No customer tickets assigned to you.")
             else:
                 for _, t in my_tickets.iterrows():
                     st.divider()
-
+    
                     st.markdown(
                         f"""
                         **🎫 Ticket ID:** `{t['Ticket_ID']}`  
@@ -183,69 +196,44 @@ def operations_view(data):
                         **⏱ Raised On:** {t['Raised_On']}
                         """
                     )
-
-                    col2 = st.columns(2)
-
+    
+                    _, col2 = st.columns(2)
+    
                     with col2:
-                    
-                        # OPEN → ACKNOWLEDGED
+    
                         if t["Status"] == "Open":
-                            if st.button(
-                                "✅ Acknowledge",
-                                key=f"ack_{t['Ticket_ID']}"
-                            ):
+                            if st.button("✅ Acknowledge", key=f"ack_{t['Ticket_ID']}"):
                                 tickets_df.loc[
                                     tickets_df["Ticket_ID"] == t["Ticket_ID"],
                                     ["Status", "Status_Updated_On"]
                                 ] = ["Acknowledged", pd.Timestamp.now()]
-                    
                                 st.session_state.customer_tickets = tickets_df.to_dict("records")
                                 st.success("Ticket acknowledged")
                                 st.rerun()
-                    
-                        # ACKNOWLEDGED → IN PROGRESS
+    
                         elif t["Status"] == "Acknowledged":
-                            if st.button(
-                                "🔧 Start Work",
-                                key=f"progress_{t['Ticket_ID']}"
-                            ):
+                            if st.button("🔧 Start Work", key=f"progress_{t['Ticket_ID']}"):
                                 tickets_df.loc[
                                     tickets_df["Ticket_ID"] == t["Ticket_ID"],
                                     ["Status", "Status_Updated_On"]
                                 ] = ["In Progress", pd.Timestamp.now()]
-                    
                                 st.session_state.customer_tickets = tickets_df.to_dict("records")
                                 st.info("Work started on ticket")
                                 st.rerun()
-                    
-                        # IN PROGRESS → RESOLVED
+    
                         elif t["Status"] == "In Progress":
-                            if st.button(
-                                "✅ Mark Resolved",
-                                key=f"resolve_{t['Ticket_ID']}"
-                            ):
+                            if st.button("✅ Mark Resolved", key=f"resolve_{t['Ticket_ID']}"):
                                 tickets_df.loc[
                                     tickets_df["Ticket_ID"] == t["Ticket_ID"],
                                     ["Status", "Status_Updated_On", "Customer_Notified"]
                                 ] = ["Resolved", pd.Timestamp.now(), True]
-                    
                                 st.session_state.customer_tickets = tickets_df.to_dict("records")
                                 st.success("Ticket resolved. Customer notified.")
                                 st.rerun()
-                    
-                        # RESOLVED (Waiting for auto close)
+    
                         elif t["Status"] == "Resolved":
                             st.warning("⏳ Ticket will auto-close after 2 hours")
 
-            now = pd.Timestamp.now()
-        
-        for t in st.session_state.customer_tickets:
-            if t["Status"] == "Resolved":
-                resolved_at = t["Status_Updated_On"]
-        
-                if now - resolved_at > pd.Timedelta(hours=2):
-                    t["Status"] = "Closed"
-                    t["Status_Updated_On"] = now
 
 
 
