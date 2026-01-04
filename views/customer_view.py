@@ -19,6 +19,20 @@ def customer_view(data):
 
     lifecycle = order["Lifecycle_Stage"]
 
+    tasks_df = data["tasks"].copy()
+    task_dict_df = data["dictionary"].copy()
+    
+    # -------------------------
+    # GET CURRENT TASK FOR ORDER
+    # -------------------------
+    current_task = tasks_df[
+        tasks_df["Order_ID"] == customer_order_id
+    ].iloc[0]
+    
+    task_id = current_task["Task_ID"]
+    assigned_team = current_task["Assigned_To_Team"]
+    assigned_poc = current_task["Assigned_To_POC"]
+
     # -------------------------
     # ORDER STATUS
     # -------------------------
@@ -92,20 +106,17 @@ def customer_view(data):
         placeholder="Briefly describe the problem you are facing"
     )
 
-    routed_team = st.session_state.get(
-        "LIFECYCLE_TO_OPS_TEAM", {}
-    ).get(lifecycle, "OPS_GENERAL")
-
-
     if st.button("🚨 Submit Ticket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
 
         st.session_state.customer_tickets.append({
             "Ticket_ID": ticket_id,
             "Order_ID": customer_order_id,
-            "Customer_Name": user["POC_Name"],
+            "Task_ID": task_id,
             "Lifecycle_Stage": lifecycle,
-            "Routed_Team": routed_team,
+            "Assigned_To_Team": assigned_team,
+            "Assigned_To_POC": assigned_poc,
+            "Customer_Name": user["POC_Name"],
             "Category": ticket_reason,
             "Description": ticket_description,
             "Status": "Open",
