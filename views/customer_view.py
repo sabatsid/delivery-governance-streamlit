@@ -21,14 +21,14 @@ def customer_view(data):
 
     tasks_df = data["tasks"].copy()
     task_dict_df = data["dictionary"].copy()
-    
+
     # -------------------------
     # GET CURRENT TASK FOR ORDER
     # -------------------------
     current_task = tasks_df[
         tasks_df["Order_ID"] == customer_order_id
     ].iloc[0]
-    
+
     task_id = current_task["Task_ID"]
     assigned_team = current_task["Assigned_To_Team"]
     assigned_poc = current_task["Assigned_To_POC"]
@@ -55,22 +55,14 @@ def customer_view(data):
     ]
 
     lifecycle_to_milestone = {
-        # Customer onboarding & order creation
-        "Lead to Order": 0,              # Customer Onboarded
-        "Customer Onboarding": 1,        # Order Confirmed
-    
-        # Build & installation phases
-        "Build to Order": 2,             # Installation
-        "Last Mile Build – Wireless": 2, # Installation
-        "Last Mile Build – Fiber": 2,    # Installation
-    
-        # Activation phase
-        "Order to Activation": 3,        # Activation
-    
-        # Closure
-        "Completed": 4                  # Completed
+        "Lead to Order": 0,
+        "Customer Onboarding": 1,
+        "Build to Order": 2,
+        "Last Mile Build – Wireless": 2,
+        "Last Mile Build – Fiber": 2,
+        "Order to Activation": 3,
+        "Completed": 4
     }
-
 
     current_index = lifecycle_to_milestone.get(lifecycle, 1)
 
@@ -105,9 +97,6 @@ def customer_view(data):
         "Describe the issue",
         placeholder="Briefly describe the problem you are facing"
     )
-
-    "Status_Updated_On": pd.Timestamp.now(),
-    "Customer_Notified": False
 
     if st.button("🚨 Submit Ticket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
