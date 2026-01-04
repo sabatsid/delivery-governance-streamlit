@@ -254,7 +254,7 @@ def program_view(data):
             # FIND REPORTEES
             # -------------------------
             reportees = creds_df[
-                creds_df["Report_To"].str.strip().str.lower() == manager_email
+                creds_df["Reports_To"].str.strip().str.lower() == manager_email
             ]["Login_ID"].str.strip().str.lower().tolist()
     
             if not reportees:
