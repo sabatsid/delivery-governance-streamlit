@@ -33,22 +33,30 @@ def customer_view(data):
     # ORDER PROGRESS
     # -------------------------
     milestones = [
+        "Customer Onboarded",
         "Order Confirmed",
-        "Build in Progress",
         "Installation",
         "Activation",
         "Completed"
     ]
 
     lifecycle_to_milestone = {
-        "Lead to Order": 0,
-        "Customer Onboarding": 0,
-        "Build to Order": 1,
-        "Last Mile Build – Wireless": 1,
-        "Last Mile Build – Fiber": 1,
-        "Order to Activation": 3,
-        "Completed": 4
+        # Customer onboarding & order creation
+        "Lead to Order": 0,              # Customer Onboarded
+        "Customer Onboarding": 1,        # Order Confirmed
+    
+        # Build & installation phases
+        "Build to Order": 2,             # Installation
+        "Last Mile Build – Wireless": 2, # Installation
+        "Last Mile Build – Fiber": 2,    # Installation
+    
+        # Activation phase
+        "Order to Activation": 3,        # Activation
+    
+        # Closure
+        "Completed": 4                  # Completed
     }
+
 
     current_index = lifecycle_to_milestone.get(lifecycle, 1)
 
