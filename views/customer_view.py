@@ -106,6 +106,9 @@ def customer_view(data):
         placeholder="Briefly describe the problem you are facing"
     )
 
+    "Status_Updated_On": pd.Timestamp.now(),
+    "Customer_Notified": False
+
     if st.button("🚨 Submit Ticket"):
         ticket_id = f"TCKT_{len(st.session_state.customer_tickets) + 1:04d}"
 
@@ -120,6 +123,8 @@ def customer_view(data):
             "Category": ticket_reason,
             "Description": ticket_description,
             "Status": "Open",
+            "Status_Updated_On": pd.Timestamp.now(),
+            "Customer_Notified": False,
             "Raised_On": pd.Timestamp.now()
         })
 
