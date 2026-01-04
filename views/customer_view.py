@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 def customer_view(data):
-    st.title("📦 Track")
+    st.title("📦 Track your order")
     st.caption("Real-time visibility into your order and support")
 
     # -------------------------
