@@ -128,7 +128,7 @@ def operations_view(data):
                     else:
                         st.dataframe(
                             completed_tasks[
-                                ["Task_ID", "Task_Name", "Assigned_To_POC", "Task_End_Date"]
+                                ["Task_ID", "Task_Name", "Assigned_To_POC"]
                             ],
                             use_container_width=True
                         )
