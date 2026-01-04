@@ -225,104 +225,135 @@ def program_view(data):
                     use_container_width=True
                 )
 
-# ======================================================
-# TAB 2 — CUSTOMER TICKETS (MANAGER VIEW)
-# ======================================================
+    # ======================================================
+    # TAB 2 — CUSTOMER TICKETS (MANAGER VIEW)
+    # ======================================================
     with tab2:
         st.subheader("🎫 Customer Tickets")
         st.caption("Tickets raised by customers for your delivery team")
     
         # -------------------------
+        # LOAD DATA
+        # -------------------------
+        creds_df = data["login"].copy()
+        tickets = st.session_state.get("customer_tickets", [])
+    
+        if not tickets:
+            st.info("No customer tickets raised yet.")
+            st.stop()
+    
+        tickets_df = pd.DataFrame(tickets)
+    
+        # -------------------------
+        # NORMALIZE CREDENTIALS
+        # -------------------------
+        creds_df["login_clean"] = (
+            creds_df["Login_ID"].astype(str).str.strip().str.lower()
+        )
+    
+        creds_df["poc_clean"] = (
+            creds_df["POC_Name"].astype(str).str.strip().str.lower()
+        )
+    
+        creds_df["reports_to_clean"] = (
+            creds_df["Reports to"].astype(str).str.strip().str.lower()
+        )
+    
+        # -------------------------
         # MANAGER CONTEXT
         # -------------------------
-        manager_email = (
+        manager_login = (
             st.session_state.user_profile
             .get("Login_ID", "")
             .strip()
             .lower()
         )
     
-        creds_df = data["login"].copy()
-        tickets = st.session_state.get("customer_tickets", [])
+        # Find manager name from Login_ID
+        manager_row = creds_df[
+            creds_df["login_clean"] == manager_login
+        ]
     
-        if not tickets:
-            st.info("No customer tickets raised yet.")
+        if manager_row.empty:
+            st.error("Logged-in manager not found in Login_Credentials.")
+            st.stop()
+    
+        manager_name = manager_row.iloc[0]["poc_clean"]
+    
+        # -------------------------
+        # FIND REPORTEES BY NAME
+        # -------------------------
+        reportees_df = creds_df[
+            creds_df["reports_to_clean"] == manager_name
+        ]
+    
+        if reportees_df.empty:
+            st.warning(
+                f"No reportees mapped to you.\n\n"
+                f"Expected `Reports to` = {manager_name}"
+            )
+            st.stop()
+    
+        reportee_logins = reportees_df["login_clean"].tolist()
+    
+        # -------------------------
+        # FILTER TICKETS
+        # -------------------------
+        tickets_df["assigned_poc_clean"] = (
+            tickets_df["Assigned_To_POC"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+    
+        my_team_tickets = tickets_df[
+            tickets_df["assigned_poc_clean"].isin(reportee_logins)
+        ]
+    
+        if my_team_tickets.empty:
+            st.success("🎉 No active tickets for your team.")
         else:
-            tickets_df = pd.DataFrame(tickets)
+            for _, t in my_team_tickets.iterrows():
+                st.divider()
     
-            # -------------------------
-            # FIND REPORTEES
-            # -------------------------
-            reportees = creds_df[
-                creds_df["Reports to"].str.strip().str.lower() == manager_email
-            ]["Login_ID"].str.strip().str.lower().tolist()
-    
-            if not reportees:
-                st.warning("No reportees mapped to you.")
-            else:
-                tickets_df["assigned_poc_clean"] = (
-                    tickets_df["Assigned_To_POC"]
-                    .astype(str)
-                    .str.strip()
-                    .str.lower()
+                st.markdown(
+                    f"""
+                    **🎫 Ticket ID:** `{t['Ticket_ID']}`  
+                    **📦 Order ID:** `{t['Order_ID']}`  
+                    **🛠 Task ID:** `{t['Task_ID']}`  
+                    **👤 Customer:** {t['Customer_Name']}  
+                    **👨‍🔧 Assigned Engineer:** {t['Assigned_To_POC']}  
+                    **📌 Status:** {t['Status']}  
+                    **⏱ Raised On:** {t['Raised_On']}
+                    """
                 )
     
-                team_tickets = tickets_df[
-                    tickets_df["assigned_poc_clean"].isin(reportees)
-                ]
+                # -------------------------
+                # REASSIGNMENT
+                # -------------------------
+                new_assignee = st.selectbox(
+                    "Reassign to",
+                    options=reportee_logins,
+                    index=reportee_logins.index(
+                        t["assigned_poc_clean"]
+                    ) if t["assigned_poc_clean"] in reportee_logins else 0,
+                    key=f"reassign_{t['Ticket_ID']}"
+                )
     
-                if team_tickets.empty:
-                    st.success("🎉 No active tickets for your team.")
-                else:
-                    for _, t in team_tickets.iterrows():
-                        st.divider()
+                if st.button(
+                    "🔄 Confirm Reassignment",
+                    key=f"btn_reassign_{t['Ticket_ID']}"
+                ):
+                    tickets_df.loc[
+                        tickets_df["Ticket_ID"] == t["Ticket_ID"],
+                        ["Assigned_To_POC", "Status_Updated_On"]
+                    ] = [new_assignee, pd.Timestamp.now()]
     
-                        st.markdown(
-                            f"""
-                            **🎫 Ticket ID:** `{t['Ticket_ID']}`  
-                            **📦 Order ID:** `{t['Order_ID']}`  
-                            **🛠 Task ID:** `{t['Task_ID']}`  
-                            **👤 Customer:** {t['Customer_Name']}  
-                            **👨‍🔧 Assigned Engineer:** {t['Assigned_To_POC']}  
-                            **📌 Status:** {t['Status']}  
-                            **⏱ Raised On:** {t['Raised_On']}
-                            """
-                        )
+                    st.session_state.customer_tickets = tickets_df.to_dict("records")
     
-                        # -------------------------
-                        # REASSIGNMENT
-                        # -------------------------
-                        st.markdown("**🔁 Reassign Ticket**")
+                    st.success(f"Ticket reassigned to {new_assignee}")
+                    st.rerun()
     
-                        new_assignee = st.selectbox(
-                            "Select new engineer",
-                            options=reportees,
-                            index=reportees.index(
-                                t["assigned_poc_clean"]
-                            ) if t["assigned_poc_clean"] in reportees else 0,
-                            key=f"reassign_{t['Ticket_ID']}"
-                        )
-    
-                        if st.button(
-                            "🔄 Confirm Reassignment",
-                            key=f"btn_reassign_{t['Ticket_ID']}"
-                        ):
-                            tickets_df.loc[
-                                tickets_df["Ticket_ID"] == t["Ticket_ID"],
-                                ["Assigned_To_POC", "Status_Updated_On"]
-                            ] = [new_assignee, pd.Timestamp.now()]
-    
-                            st.session_state.customer_tickets = (
-                                tickets_df
-                                .drop(columns=["assigned_poc_clean"])
-                                .to_dict("records")
-                            )
-    
-                            st.success(
-                                f"Ticket reassigned to {new_assignee}"
-                            )
-                            st.rerun()
-
 
     with tab3:
         st.info("🚧 Escalations — Coming soon")
