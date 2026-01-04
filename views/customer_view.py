@@ -128,6 +128,8 @@ def customer_view(data):
             "Our team will contact you shortly."
         )
 
+        st.write(st.session_state.customer_tickets[-1])
+
     # -------------------------
     # VIEW PREVIOUS TICKETS
     # -------------------------
